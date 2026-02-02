@@ -31,8 +31,9 @@ class CamWorker : public QObject
     Q_OBJECT
 public:
     explicit CamWorker(QObject *parent = nullptr);
-    struct cam_buf *buf_infos;
+    struct cam_buf *buf_infos = nullptr;
 signals:
+      void yuvFrameReady(uchar *frame, uint width, uint height);
 public slots:
     void camRun();
     void camStartCapture();

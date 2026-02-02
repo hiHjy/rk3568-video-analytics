@@ -24,6 +24,8 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QDebug>
+#include <rgaworker.h>
+#include <mppworker.h>
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -41,10 +43,24 @@ Widget::Widget(QWidget *parent)
     camWorker = new CamWorker();
     camT = new QThread(this);
     camWorker->moveToThread(camT);
+
+    rgaT = new QThread(this);
+    RGA = new RGAWorker();
+    RGA->moveToThread(rgaT);
+
+
+
+    MPP = new MPPWorker();
     connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
     connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
+    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
+
+    connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
+
+    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
     camT->start();
+    rgaT->start();
     //cv::Mat (50,50,CV_8UC3);
 //    worker = new Worker();
 //    worker->start();
@@ -64,7 +80,25 @@ Widget::~Widget()
         }
     }
 
+    if (rgaT && rgaT->isRunning()) {
+
+
+        camT->quit();
+        if (rgaT->wait(3000)) {
+            qDebug() << "rga线程正常结束";
+        } else {
+            qDebug() << "rga线程还在运行，没有正常结束";
+        }
+    }
+
     delete ui;
+}
+
+void Widget::localDisplay(char *displayFramePtr, int width, int height)
+{
+
+    QImage img((uchar*)displayFramePtr, width, height, QImage::Format_RGB888);
+    ui->label->setPixmap(QPixmap::fromImage(img));
 }
 
 
@@ -237,9 +271,3 @@ void Worker::run()
 
 }
 #endif
-void Worker::print_error(const char *msg, int err)
-{
-    char buf[256];
-    av_strerror(err, buf, sizeof(buf));
-    std::cerr << msg << ": " << buf << "\n";
-}

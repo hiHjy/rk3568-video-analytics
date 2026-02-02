@@ -22,6 +22,12 @@ void CamWorker::camRun()
     fds.events = POLLIN;
     struct v4l2_buffer buf;
     camStartCapture();
+    uchar *tmpBuf = (uchar*)malloc(buf_infos[0].length);
+    if (!tmpBuf) {
+        perror("malloc");
+        return;
+    }
+
     qDebug() << "采集线程:" << QThread::currentThread();
     while (!QThread::currentThread()->isInterruptionRequested()) {
 
@@ -33,15 +39,34 @@ void CamWorker::camRun()
         if (QThread::currentThread()->isInterruptionRequested()) {
             break;
         }
+        if (ret == 0) continue; //如果超时,那么重新来
         if (ret < 0) {
             qDebug() << "[camRun]poll error";
-            return;
+            break;
         }
+        //如果设备错误，挂起，fd被关闭
+        if (fds.revents & (POLLERR|POLLHUP|POLLNVAL)) {
+            qDebug() << "poll err revents=" << fds.revents;
+            break; // 或者走重连逻辑
+        }
+
         if (fds.revents & POLLIN) {
             if (ioctl(v4l2_fd, VIDIOC_DQBUF, &buf) != 0) {
                 qDebug() << "获取视频帧失败";
                 continue;
             }
+            memcpy(tmpBuf, buf_infos[buf.index].start, buf_infos[buf.index].length);
+
+
+            emit yuvFrameReady(tmpBuf, width, height);
+
+            //获取到一帧数据
+            if(ioctl(v4l2_fd, VIDIOC_QBUF, &buf) < 0) {
+                perror("QBUF");
+                break;
+            }
+
+
         }
 
         //        qDebug() << "获取1帧数据（前五个字节）：" << buf_infos[buf.index].start[0]
@@ -50,6 +75,7 @@ void CamWorker::camRun()
 
 
     }
+    free(tmpBuf);
     qDebug() << "采集线程成功退出循环";
     camStopCapture();
 
@@ -172,7 +198,13 @@ void CamWorker::camInit()
         return;
     }
 
-    printf("当前视频分辨率为<%d * %d>\n", fmt.fmt.pix.width, fmt.fmt.pix.height);
+    if (ioctl(v4l2_fd, VIDIOC_G_FMT, &fmt) < 0) {
+        perror("ioctl VIDIOC_QUERYCAP error");
+        close(v4l2_fd);
+        return;
+    }
+
+    printf("当前视频分辨率为<%d * %d> byteperline:%d\n", fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.bytesperline);
 
     /* 获取 streamparm */
     streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

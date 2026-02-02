@@ -9,11 +9,13 @@
 #include <rga.h>
 #include "RgaUtils.h"
 #include <camworker.h>
-#include <QThread>
 
+#include <QThread>
+class MPPWorker;
+class RGAWorker;
 #include <opencv2/opencv.hpp>
 extern "C" {
-#include <unistd.h>
+
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/error.h>
@@ -50,11 +52,18 @@ public:
     Worker *worker;
     ~Widget();
 signals:
+public slots:
+    void localDisplay(char * displayFramePtr, int width, int height);
 private:
     Ui::Widget *ui;
+    QImage *img;
+    bool isFirst = true;
     CamWorker* camWorker;
     static Widget *self;
     QThread *camT;
+    QThread *rgaT;
+    RGAWorker *RGA;
+    MPPWorker *MPP;
 };
 
 

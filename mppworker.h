@@ -15,14 +15,22 @@ class MPPWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit MPPWorker(QObject *parent = nullptr);
+    MPPWorker(int w = -1, int h = -1);
 
 signals:
 public slots:
+
     void encode2H264(char *nv12Frame, int width, int height);
 private:
-    void print_error(const char *msg, int err);
+    int width = 0;
+    int height = 0;
+    uint64_t pts = 0;
 
+    AVCodecContext *enc_ctx = nullptr;
+    AVFrame *enc_frame = nullptr;
+    AVPacket *enc_pkt;
+    void print_error(const char *msg, int err);
+    ~MPPWorker();
 };
 
 #endif // MPPWORKER_H

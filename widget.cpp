@@ -30,7 +30,7 @@ class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
 {
-   return self;
+    return self;
 }
 
 Widget::Widget(QWidget *parent)
@@ -40,6 +40,7 @@ Widget::Widget(QWidget *parent)
     qDebug() << "主线程:" << QThread::currentThread();
     ui->setupUi(this);
     self = this;
+
     camWorker = new CamWorker();
     camT = new QThread(this);
     camWorker->moveToThread(camT);
@@ -50,20 +51,28 @@ Widget::Widget(QWidget *parent)
 
 
 
-    MPP = new MPPWorker();
+    MPP = new MPPWorker(camWorker->getWidth(), camWorker->getHeight());
+    mppT = new QThread(this);
+    MPP->moveToThread(mppT);
+
+
+
     connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
     connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
     connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
 
     connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
-
     connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
+
+    connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
+    connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
     camT->start();
     rgaT->start();
+    mppT->start();
     //cv::Mat (50,50,CV_8UC3);
-//    worker = new Worker();
-//    worker->start();
+    //    worker = new Worker();
+    //    worker->start();
 }
 
 
@@ -83,7 +92,7 @@ Widget::~Widget()
     if (rgaT && rgaT->isRunning()) {
 
 
-        camT->quit();
+        rgaT->quit();
         if (rgaT->wait(3000)) {
             qDebug() << "rga线程正常结束";
         } else {
@@ -91,6 +100,16 @@ Widget::~Widget()
         }
     }
 
+    if (mppT && mppT->isRunning()) {
+
+
+        mppT->quit();
+        if (mppT->wait(3000)) {
+            qDebug() << "mpp线程正常结束";
+        } else {
+            qDebug() << "mpp线程还在运行，没有正常结束";
+        }
+    }
     delete ui;
 }
 
@@ -185,88 +204,88 @@ void Worker::run()
 void Worker::run()
 {
     qDebug() << "worker start";
-//    avdevice_register_all();
+    //    avdevice_register_all();
 
 
 
-//    AVDictionary *opt = nullptr;
-//    AVFormatContext *in_ctx = avformat_alloc_context();
+    //    AVDictionary *opt = nullptr;
+    //    AVFormatContext *in_ctx = avformat_alloc_context();
 
-//    /**以下平台不同可能需要修改 */
-//    av_dict_set(&opt, "framerate", "30", 0);
-//    av_dict_set(&opt, "video_size", "640x480", 0);
-//    av_dict_set(&opt, "pixel_format", "yuyv422", 0);
-//    int ret = avformat_open_input(&in_ctx, "/dev/video10", av_find_input_format("v4l2"), &opt);
-//    av_dict_free(&opt);
-//    if (ret < 0) { print_error("avformat_open_input", ret); return; }
+    //    /**以下平台不同可能需要修改 */
+    //    av_dict_set(&opt, "framerate", "30", 0);
+    //    av_dict_set(&opt, "video_size", "640x480", 0);
+    //    av_dict_set(&opt, "pixel_format", "yuyv422", 0);
+    //    int ret = avformat_open_input(&in_ctx, "/dev/video10", av_find_input_format("v4l2"), &opt);
+    //    av_dict_free(&opt);
+    //    if (ret < 0) { print_error("avformat_open_input", ret); return; }
 
-//    ret = avformat_find_stream_info(in_ctx, nullptr);
-//    if (ret < 0) { print_error("avformat_find_stream_info", ret); return; }
+    //    ret = avformat_find_stream_info(in_ctx, nullptr);
+    //    if (ret < 0) { print_error("avformat_find_stream_info", ret); return; }
 
-//    int video_index = -1;
-//    for (unsigned i = 0; i < in_ctx->nb_streams; ++i) {
-//        if (in_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//            video_index = (int)i;
-//            break;
-//        }
-//    }
-//    AVCodecParameters *in_par = in_ctx->streams[video_index]->codecpar;
-//    printf("size:%d*%d format:%s\n", in_par->width, in_par->height, av_get_pix_fmt_name((AVPixelFormat)in_par->format));
-
-
-//    /*
-//    IM_STATUS imcvtcolor(rga_buffer_t src,
-//    rga_buffer_t dst,
-//    int sfmt,
-//    int dfmt,
-//    int mode = IM_COLOR_SPACE_DEFAULT,
-//    int sync = 1)
-
-//    */
+    //    int video_index = -1;
+    //    for (unsigned i = 0; i < in_ctx->nb_streams; ++i) {
+    //        if (in_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+    //            video_index = (int)i;
+    //            break;
+    //        }
+    //    }
+    //    AVCodecParameters *in_par = in_ctx->streams[video_index]->codecpar;
+    //    printf("size:%d*%d format:%s\n", in_par->width, in_par->height, av_get_pix_fmt_name((AVPixelFormat)in_par->format));
 
 
+    //    /*
+    //    IM_STATUS imcvtcolor(rga_buffer_t src,
+    //    rga_buffer_t dst,
+    //    int sfmt,
+    //    int dfmt,
+    //    int mode = IM_COLOR_SPACE_DEFAULT,
+    //    int sync = 1)
 
-
-
-//    if (video_index < 0) { std::cerr << "no video stream\n"; return; }
-//    AVFrame *frame = av_frame_alloc ();
-//    AVPacket *pkt = av_packet_alloc();
-//    QImage img(640, 480, QImage::Format_RGB888);
-
-//    if (!frame || !pkt) {
-//        qDebug() << "av_frame_alloc or av_packet_alloc";
-//        //imresize();
-//    }
+    //    */
 
 
 
 
-//    while (true) {
 
-//        int ret = av_read_frame(in_ctx, pkt);
-//        if (ret == AVERROR(EAGAIN)) {
-//            usleep(5000);
-//            continue;
-//        }
-//        /*
-//            第五个参数是,每一行多少像素,包括内存对齐
+    //    if (video_index < 0) { std::cerr << "no video stream\n"; return; }
+    //    AVFrame *frame = av_frame_alloc ();
+    //    AVPacket *pkt = av_packet_alloc();
+    //    QImage img(640, 480, QImage::Format_RGB888);
 
-//        */
-//        rga_buffer_t src = wrapbuffer_virtualaddr((void*)pkt->data, in_par->width, in_par->height, RK_FORMAT_YUYV_422, in_par->width, in_par->height);
-//        rga_buffer_t dst = wrapbuffer_virtualaddr((void*)img.bits(), img.width(), img.height(), RK_FORMAT_RGB_888, img.bytesPerLine()/3, img.height());
+    //    if (!frame || !pkt) {
+    //        qDebug() << "av_frame_alloc or av_packet_alloc";
+    //        //imresize();
+    //    }
 
 
-//        ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
-//        if (ret !=  IM_STATUS_SUCCESS) {
-//            qDebug() << "imcvtcolor" ;
-//            return;
-//        }
-
-//        Widget::getInstance()->ui->label->setPixmap(QPixmap::fromImage(img));
-//        av_packet_unref(pkt);
 
 
-//    }
+    //    while (true) {
+
+    //        int ret = av_read_frame(in_ctx, pkt);
+    //        if (ret == AVERROR(EAGAIN)) {
+    //            usleep(5000);
+    //            continue;
+    //        }
+    //        /*
+    //            第五个参数是,每一行多少像素,包括内存对齐
+
+    //        */
+    //        rga_buffer_t src = wrapbuffer_virtualaddr((void*)pkt->data, in_par->width, in_par->height, RK_FORMAT_YUYV_422, in_par->width, in_par->height);
+    //        rga_buffer_t dst = wrapbuffer_virtualaddr((void*)img.bits(), img.width(), img.height(), RK_FORMAT_RGB_888, img.bytesPerLine()/3, img.height());
+
+
+    //        ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
+    //        if (ret !=  IM_STATUS_SUCCESS) {
+    //            qDebug() << "imcvtcolor" ;
+    //            return;
+    //        }
+
+    //        Widget::getInstance()->ui->label->setPixmap(QPixmap::fromImage(img));
+    //        av_packet_unref(pkt);
+
+
+    //    }
 
 
 }

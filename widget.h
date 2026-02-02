@@ -22,7 +22,9 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 #include <libavdevice/avdevice.h>
+
 }
+
 QT_BEGIN_NAMESPACE
 
 
@@ -30,7 +32,7 @@ namespace Ui { class Widget; }
 QT_END_NAMESPACE
 class Worker :public QThread
 {
-     Q_OBJECT
+    Q_OBJECT
 public:
     Worker(QObject *parent = nullptr);
     ~Worker();
@@ -62,6 +64,7 @@ private:
     static Widget *self;
     QThread *camT;
     QThread *rgaT;
+    QThread *mppT;
     RGAWorker *RGA;
     MPPWorker *MPP;
 };

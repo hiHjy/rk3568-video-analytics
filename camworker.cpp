@@ -55,7 +55,8 @@ void CamWorker::camRun()
                 qDebug() << "获取视频帧失败";
                 continue;
             }
-            memcpy(tmpBuf, buf_infos[buf.index].start, buf_infos[buf.index].length);
+            size_t n = buf.bytesused ? buf.bytesused : buf_infos[buf.index].length;
+            memcpy(tmpBuf, buf_infos[buf.index].start, n);
 
 
             emit yuvFrameReady(tmpBuf, width, height);
@@ -350,6 +351,19 @@ void CamWorker::camStopCapture()
     qDebug() << "停止采集";
 
 }
+
+int CamWorker::getHeight() const
+{
+    return height;
+}
+
+int CamWorker::getWidth() const
+{
+    return width;
+}
+
+
+
 
 
 

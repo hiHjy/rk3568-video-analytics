@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QMutex>
+
 extern "C" {
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
@@ -32,19 +34,26 @@ class CamWorker : public QObject
 public:
     explicit CamWorker(QObject *parent = nullptr);
     struct cam_buf *buf_infos = nullptr;
+    int getWidth() const;
+
+    int getHeight() const;
+
 signals:
-      void yuvFrameReady(uchar *frame, uint width, uint height);
+    void yuvFrameReady(uchar *frame, uint width, uint height);
 public slots:
     void camRun();
     void camStartCapture();
     void camStopCapture();
 
+
 private:
     int v4l2_fd = -1;
     int width = -1;
     int height = -1;
+
     void camInit();
     int camInitBuffer();
+
 
     ~CamWorker();
 };

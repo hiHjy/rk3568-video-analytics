@@ -232,6 +232,7 @@ DIST          = ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk356
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/qt_config.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/devices/linux-buildroot-g++/qmake.conf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/exclusive_builds.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/toolchain.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/default_pre.prf \
@@ -432,6 +433,7 @@ Makefile: rk3568_video_analytics.pro ../../rk3568_linux5.10_sdk/buildroot/output
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/qt_config.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/devices/linux-buildroot-g++/qmake.conf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/exclusive_builds.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/toolchain.prf \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/default_pre.prf \
@@ -614,6 +616,7 @@ Makefile: rk3568_video_analytics.pro ../../rk3568_linux5.10_sdk/buildroot/output
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/qt_config.prf:
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/devices/linux-buildroot-g++/qmake.conf:
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/exclusive_builds.prf:
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/toolchain.prf:
 ../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/mkspecs/features/default_pre.prf:
@@ -833,6 +836,7 @@ moc_camworker.cpp: camworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qcontiguouscache.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qsharedpointer.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qsharedpointer_impl.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QMutex \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/videodev2.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/sys/time.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/ioctl.h \
@@ -1519,6 +1523,7 @@ moc_widget.cpp: widget.h \
 		camworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QObject \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QDebug \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QMutex \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/videodev2.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/sys/time.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/ioctl.h \
@@ -1883,6 +1888,7 @@ camworker.o: camworker.cpp camworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qcontiguouscache.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qsharedpointer.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qsharedpointer_impl.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QMutex \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/videodev2.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/sys/time.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/ioctl.h \
@@ -2180,6 +2186,7 @@ main.o: main.cpp widget.h \
 		camworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QObject \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QDebug \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QMutex \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/videodev2.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/sys/time.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/ioctl.h \
@@ -3044,6 +3051,7 @@ widget.o: widget.cpp widget.h \
 		camworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QObject \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QDebug \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QMutex \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/videodev2.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/sys/time.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/linux/ioctl.h \
@@ -3237,6 +3245,17 @@ widget.o: widget.cpp widget.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/libavdevice/version.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/libavutil/opt.h \
 		ui_widget.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/QVariant \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/QApplication \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/qapplication.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qcoreapplication.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtCore/qeventloop.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/qdesktopwidget.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtGui/qguiapplication.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtGui/qinputmethod.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/QLabel \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/qlabel.h \
+		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/qt5/QtWidgets/qframe.h \
 		rgaworker.h \
 		mppworker.h \
 		../../rk3568_linux5.10_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/libavutil/imgutils.h

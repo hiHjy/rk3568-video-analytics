@@ -75,7 +75,7 @@ Widget::Widget(QWidget *parent)
 
     connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
     connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
-
+    connect(YOLO, &YOLOWorker::drawRectFinish, RGA, &RGAWorker::finalStep);
 
     camT->start();
     rgaT->start();

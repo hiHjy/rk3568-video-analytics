@@ -13,11 +13,11 @@ RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 {
 
-    if (!displayFrame || !encFrame || !yoloFrame) {
-        displayFrame = (char *)malloc(sizeof(char) * width * height * 3);
+    if (!RGBFrame || !encFrame || !yoloFrame) {
+        RGBFrame = (char *)malloc(sizeof(char) * width * height * 3);
         yoloFrame = (char*)malloc(640*640*3);
         encFrame = (char*)malloc(sizeof(char) * width * height * 3 / 2);
-        if (!displayFrame || !encFrame) {
+        if (!RGBFrame || !encFrame) {
             perror("malloc");
             exit(-1);
         }
@@ -27,7 +27,7 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
     /***************** rga硬件加速****************************8 */
 
     rga_buffer_t src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YUYV_422, (int)width,(int) height);
-    rga_buffer_t dst = wrapbuffer_virtualaddr((void*)displayFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
+    rga_buffer_t dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
     rga_buffer_t dst_nv12 = wrapbuffer_virtualaddr((void*)encFrame, width, height, RK_FORMAT_YCrCb_420_SP, (int)width, (int)height);
 
 
@@ -60,14 +60,20 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
         return;
     }
 
-    emit displayFrameReady(displayFrame, width, height);
+
     emit encFrameReady(encFrame, width, height);
+}
+
+void RGAWorker::finalStep()
+{
+
+    emit displayFrameReady(yoloFrame, 640, 480);
 }
 
 RGAWorker::~RGAWorker()
 {
-    if (!displayFrame)
-        free(displayFrame);
+    if (!RGBFrame)
+        free(RGBFrame);
     if (!yoloFrame)
         free(yoloFrame);
     if (!encFrame)

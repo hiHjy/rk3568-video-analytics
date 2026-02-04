@@ -24,10 +24,12 @@ signals:
     void yoloRGB640X640Ready(uint8_t* yoloFrame);
     void displayFrameReady(char * displayFramePtr, int width, int height);
     void encFrameReady(char *encFrame, int width, int height);
+
 public slots:
     void frameCvtColor(uchar* frame, uint32_t width, uint32_t height);
+    void finalStep();
 private:
-    char* displayFrame = nullptr;
+    char* RGBFrame = nullptr;
     char*  encFrame = nullptr;
     char* yoloFrame = nullptr;
     int count = 0;

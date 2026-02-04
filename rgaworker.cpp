@@ -1,9 +1,11 @@
 #include "rgaworker.h"
 #include <QDebug>
 #include <QThread>
+#include <QImage>
 #define PERPIXBYTENUM 2
 RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 {
+
 
 
 }
@@ -11,14 +13,14 @@ RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 {
 
-
-    if (!displayFrame && !encFrame) {
-       displayFrame = (char *)malloc(sizeof(char) * width * height * 3);
-       encFrame = (char*)malloc(sizeof(char) * width * height * 3 / 2);
-       if (!displayFrame || !encFrame) {
-           perror("malloc");
-           exit(-1);
-       }
+    if (!displayFrame || !encFrame || !yoloFrame) {
+        displayFrame = (char *)malloc(sizeof(char) * width * height * 3);
+        yoloFrame = (char*)malloc(640*640*3);
+        encFrame = (char*)malloc(sizeof(char) * width * height * 3 / 2);
+        if (!displayFrame || !encFrame) {
+            perror("malloc");
+            exit(-1);
+        }
     }
 
 
@@ -35,6 +37,23 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
         return;
     }
 
+    //yolo
+    rga_buffer_t yoloRGB640X640 = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 640, RK_FORMAT_RGB_888, 640,640);
+
+    ret = immakeBorder(dst, yoloRGB640X640,
+                           0, 160, 0, 0,     // top bottom left right
+                           0, 0,             // border_type, value(black)
+                           1, -1, NULL);     // sync=1
+    if (ret != IM_STATUS_SUCCESS) {
+        qDebug() << "immakeBorder failed:" << ret;
+        return;
+    }
+
+
+    emit yoloRGB640X640Ready((uint8_t*)yoloFrame);
+
+
+
     ret = imcvtcolor(src, dst_nv12, RK_FORMAT_YUYV_422, RK_FORMAT_YCrCb_420_SP);
     if (ret !=  IM_STATUS_SUCCESS) {
         qDebug() << "imcvtcolor" ;
@@ -47,5 +66,10 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
 RGAWorker::~RGAWorker()
 {
-    free(displayFrame);
+    if (!displayFrame)
+        free(displayFrame);
+    if (!yoloFrame)
+        free(yoloFrame);
+    if (!encFrame)
+        free(encFrame);
 }

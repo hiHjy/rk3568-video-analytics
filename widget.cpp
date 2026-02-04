@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <rgaworker.h>
 #include <mppworker.h>
+#include <yoloworker.h>
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -56,6 +57,10 @@ Widget::Widget(QWidget *parent)
     MPP->moveToThread(mppT);
 
 
+    YOLO = new YOLOWorker();
+    yoloT = new QThread(this);
+    YOLO->moveToThread(yoloT);
+
 
     connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
     connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
@@ -67,9 +72,15 @@ Widget::Widget(QWidget *parent)
 
     connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
     connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
+
+    connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
+    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
+
+
     camT->start();
     rgaT->start();
     mppT->start();
+    yoloT->start();
     //cv::Mat (50,50,CV_8UC3);
     //    worker = new Worker();
     //    worker->start();
@@ -108,6 +119,17 @@ Widget::~Widget()
             qDebug() << "mpp线程正常结束";
         } else {
             qDebug() << "mpp线程还在运行，没有正常结束";
+        }
+    }
+
+    if (yoloT && yoloT->isRunning()) {
+
+
+        yoloT->quit();
+        if (yoloT->wait(3000)) {
+            qDebug() << "yolo线程正常结束";
+        } else {
+            qDebug() << "yolo线程还在运行，没有正常结束";
         }
     }
     delete ui;

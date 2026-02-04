@@ -12,16 +12,19 @@ QMAKE_LFLAGS   += -g
 SOURCES += \
     camworker.cpp \
     main.cpp \
-    mpp_enc.c \
     mppworker.cpp \
+    postprocess.cpp \
     rgaworker.cpp \
-    widget.cpp
+    widget.cpp \
+    yoloworker.cpp
 
 HEADERS += \
     camworker.h \
     mppworker.h \
+    postprocess.h \
     rgaworker.h \
-    widget.h
+    widget.h \
+    yoloworker.h
 
 FORMS += \
     widget.ui
@@ -69,12 +72,12 @@ QMAKE_LFLAGS += -Wl,-rpath,/opt/ffmpeg61/lib
 # ========================================================
 #  OpenCV（你按需增减）
 # ========================================================
-#LIBS += \
-#    -lopencv_core \
-#    -lopencv_imgproc \
-#    -lopencv_imgcodecs \
-#    -lopencv_highgui \
-#    -lopencv_videoio
+LIBS += \
+    -lopencv_core \
+    -lopencv_imgproc \
+    -lopencv_imgcodecs \
+    -lopencv_highgui \
+    -lopencv_videoio
 
 # ========================================================
 #  FFmpeg 6.1（来自 /opt/ffmpeg61）
@@ -108,6 +111,9 @@ LIBS += \
     -lz \
     -lbz2 \
     -llzma
+
+LIBS += \
+    -lrknnrt
 
 # ========================================================
 #  Deploy（保持你原来的）

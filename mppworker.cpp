@@ -87,7 +87,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
 
         //打包了一个packet
 
-        qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
+//        qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
 
 
 

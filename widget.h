@@ -13,6 +13,7 @@
 #include <QThread>
 class MPPWorker;
 class RGAWorker;
+class YOLOWorker;
 #include <opencv2/opencv.hpp>
 extern "C" {
 
@@ -65,8 +66,10 @@ private:
     QThread *camT;
     QThread *rgaT;
     QThread *mppT;
+    QThread *yoloT;
     RGAWorker *RGA;
     MPPWorker *MPP;
+    YOLOWorker *YOLO;
 };
 
 

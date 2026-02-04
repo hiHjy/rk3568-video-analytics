@@ -21,6 +21,7 @@ public:
     explicit RGAWorker(QObject *parent = nullptr);
 
 signals:
+    void yoloRGB640X640Ready(uint8_t* yoloFrame);
     void displayFrameReady(char * displayFramePtr, int width, int height);
     void encFrameReady(char *encFrame, int width, int height);
 public slots:
@@ -28,6 +29,8 @@ public slots:
 private:
     char* displayFrame = nullptr;
     char*  encFrame = nullptr;
+    char* yoloFrame = nullptr;
+    int count = 0;
     ~RGAWorker();
 
 };

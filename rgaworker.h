@@ -32,6 +32,11 @@ private:
     char* RGBFrame = nullptr;
     char*  encFrame = nullptr;
     char* yoloFrame = nullptr;
+    rga_buffer_t src;
+    rga_buffer_t dst;
+    rga_buffer_t dst_nv12;
+    rga_buffer_t  yoloRGB640X640;
+
     int count = 0;
     ~RGAWorker();
 

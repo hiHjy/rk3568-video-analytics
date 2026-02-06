@@ -26,9 +26,9 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
     /***************** rga硬件加速****************************8 */
 
-    rga_buffer_t src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YUYV_422, (int)width,(int) height);
-    rga_buffer_t dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
-    rga_buffer_t dst_nv12 = wrapbuffer_virtualaddr((void*)encFrame, width, height, RK_FORMAT_YCrCb_420_SP, (int)width, (int)height);
+    src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YUYV_422, (int)width,(int) height);
+    dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
+
 
 
     int ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
@@ -38,12 +38,12 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
     }
 
     //yolo
-    rga_buffer_t yoloRGB640X640 = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 640, RK_FORMAT_RGB_888, 640,640);
+    yoloRGB640X640  = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 640, RK_FORMAT_RGB_888, 640,640);
 
     ret = immakeBorder(dst, yoloRGB640X640,
-                           0, 160, 0, 0,     // top bottom left right
-                           0, 0,             // border_type, value(black)
-                           1, -1, NULL);     // sync=1
+                       0, 160, 0, 0,     // top bottom left right
+                       0, 0,             // border_type, value(black)
+                       1, -1, NULL);     // sync=1
     if (ret != IM_STATUS_SUCCESS) {
         qDebug() << "immakeBorder failed:" << ret;
         return;
@@ -54,20 +54,25 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
 
 
-    ret = imcvtcolor(src, dst_nv12, RK_FORMAT_YUYV_422, RK_FORMAT_YCrCb_420_SP);
+}
+
+
+
+void RGAWorker::finalStep()
+{
+    //送去本地qt显示
+    emit displayFrameReady(yoloFrame, 640, 480);
+    yoloRGB640X640  = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 480, RK_FORMAT_RGB_888, 640,480);
+    dst_nv12 = wrapbuffer_virtualaddr((void*)encFrame, 640, 480, RK_FORMAT_YCbCr_420_SP, 640, 480);
+    //送去rkmpp编码退流
+    int ret = imcvtcolor(yoloRGB640X640, dst_nv12, RK_FORMAT_RGB_888, RK_FORMAT_YCbCr_420_SP);
     if (ret !=  IM_STATUS_SUCCESS) {
         qDebug() << "imcvtcolor" ;
         return;
     }
 
+    emit encFrameReady(encFrame, 640, 480);
 
-    emit encFrameReady(encFrame, width, height);
-}
-
-void RGAWorker::finalStep()
-{
-
-    emit displayFrameReady(yoloFrame, 640, 480);
 }
 
 RGAWorker::~RGAWorker()

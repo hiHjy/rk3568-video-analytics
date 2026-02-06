@@ -31,7 +31,7 @@ void YOLOWorker::drawRect(uint8_t* rgb)
            int x2 = det->box.right;
            int y2 = det->box.bottom;
 
-           // 1️⃣ 画矩形框
+           //  画矩形框
            cv::rectangle(
                img,
                cv::Point(x1, y1),
@@ -40,7 +40,7 @@ void YOLOWorker::drawRect(uint8_t* rgb)
                2
            );
 
-           // 2️⃣ 画文字（类别 + 置信度）
+           // 画文字（类别 + 置信度）
            char label[128];
            snprintf(label, sizeof(label), "%s %.1f%%",
                     det->name, det->prop * 100);
@@ -50,7 +50,7 @@ void YOLOWorker::drawRect(uint8_t* rgb)
                label,
                cv::Point(x1, y1 - 5),
                cv::FONT_HERSHEY_SIMPLEX,
-               0.5,
+               0.8,
                cv::Scalar(0, 255, 0),
                1
            );
@@ -63,10 +63,7 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
 {
 
 
-    // 你传进来的 rgb 就是 RGA 那边处理好的 RGB888 640x640
-    // 注意：必须保证内存布局是紧密的（stride == 640*3），否则需要你在 RGA 输出时就做成紧密buffer
-
-
+    // rgb 就是 RGA 那边处理好的 RGB888 640x640
     if (!rgb) {
         printf("[inferRgb640] rgb is null!\n");
         return;
@@ -86,11 +83,11 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
 
     int ret = -1;
 
-    // 输入就是模型尺寸，不需要 scale 回原图（你只喂 640）
+    // 输入就是模型尺寸，不需要 scale 回原图
     float scale_w = 1.0f;
     float scale_h = 1.0f;
 
-    // 你真正要喂给 rknn 的就是 rgb
+    //  rknn  rgb
     inputs[0].buf = rgb;
 
     timeval t0, t1, t2;
@@ -120,7 +117,6 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
     // 输入就是模型尺寸，不需要 scale 回原图（你只喂 640）
 
     // pads：letterbox 填充信息
-    // 你现在喂的是“已经处理好的 640x640”，等价于没有 padding
     BOX_RECT pads;
     memset(&pads, 0, sizeof(pads));
     pads.bottom = 160;

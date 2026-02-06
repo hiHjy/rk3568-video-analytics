@@ -18,11 +18,12 @@ MPPWorker::MPPWorker(int w, int h)
     }
     enc_ctx->width = width;
     enc_ctx->height = height;
-    enc_ctx->pix_fmt = AV_PIX_FMT_NV12; //编码器得是这个格式，可用于mp4，rtsp
+    enc_ctx->pix_fmt = AV_PIX_FMT_NV12;
     enc_ctx->time_base = {1, FPS};
     enc_ctx->framerate = {FPS, 1};
+    enc_ctx->gop_size = FPS;
 
-    enc_ctx->bit_rate = 800000; //不知道是啥
+    enc_ctx->bit_rate = 3 * 1000 * 1000; //不知道是啥
     enc_ctx->max_b_frames = 0; //关闭B帧
     av_opt_set(enc_ctx->priv_data, "tune", "zerolatency", 0);
     av_opt_set(enc_ctx->priv_data, "preset", "veryfast", 0);
@@ -45,7 +46,7 @@ MPPWorker::MPPWorker(int w, int h)
         return;
     }
     qDebug() << "编码器启动成功！";
-
+    rtspInit();
 
 
 }
@@ -84,10 +85,23 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
             print_error("avcodec_receive_packet error", ret);
             return;
         }
+        enc_pkt->stream_index = rtsp_stream->index;
+
+        //时间戳换算
+        av_packet_rescale_ts(
+                    enc_pkt,
+                    enc_ctx->time_base,
+                    rtsp_stream->time_base
+                    );
+        ret = av_interleaved_write_frame(rtsp_ctx, enc_pkt); //推流
+        if (ret < 0) {
+            print_error("av_interleaved_write_frame", ret);
+            return ;
+        }
 
         //打包了一个packet
 
-//        qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
+        //        qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
 
 
 
@@ -102,6 +116,48 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
 
 
 
+}
+
+void MPPWorker::rtspInit()
+{
+    //** 创建rtsp输出上下文 */
+    rtsp_ctx = nullptr;
+    avformat_alloc_output_context2(&rtsp_ctx ,nullptr, "rtsp", "rtsp://127.0.0.1:8554/live");
+    if (!rtsp_ctx) {
+        qDebug() << "[rtspInit]avformat_alloc_output_context2 failed";
+        return;
+    }
+
+    //给这个rtsp格式的文件创建一个新流
+    rtsp_stream = avformat_new_stream(rtsp_ctx, nullptr);
+    if (!rtsp_stream) {
+        qDebug() << "[rtspInit]avformat_new_stream failed";
+        return ;
+    }
+
+    if (!enc_ctx) {
+        qDebug() << "[rtspInit]enc_ctx is null";
+        return;
+    }
+
+    int ret = avcodec_parameters_from_context(rtsp_stream->codecpar, enc_ctx);
+    if (ret < 0) {
+        print_error("avcodec_parameters_from_context", ret);
+        return ;
+    }
+    rtsp_stream->time_base = enc_ctx->time_base;
+
+    //   rtsp的参数
+    AVDictionary *rtsp_opts = nullptr;
+
+    av_dict_set(&rtsp_opts, "rtsp_transport", "tcp", 0);
+    //将容器rtsp的头部信息（Header） 写入文件。
+    ret = avformat_write_header(rtsp_ctx, &rtsp_opts);
+    if (ret < 0) {
+        print_error("avformat_write_header", ret);
+        return;
+    }
+    qDebug() << "RTSP Init Successfully";
 }
 
 

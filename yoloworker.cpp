@@ -11,53 +11,7 @@ YOLOWorker::YOLOWorker(QObject *parent) : QObject(parent)
 
 }
 
-void YOLOWorker::drawRect(uint8_t* rgb)
-{
-    cv::Mat img(640, 640, CV_8UC3, rgb);
 
-
-
-    if (!out || out->count <= 0) {
-        emit drawRectFinish();
-        return;
-    }
-
-
-       for (int i = 0; i < out->count; ++i) {
-           detect_result_t* det = &out->results[i];
-
-           int x1 = det->box.left;
-           int y1 = det->box.top;
-           int x2 = det->box.right;
-           int y2 = det->box.bottom;
-
-           //  画矩形框
-           cv::rectangle(
-               img,
-               cv::Point(x1, y1),
-               cv::Point(x2, y2),
-               cv::Scalar(0, 255, 0),   // 绿色
-               2
-           );
-
-           // 画文字（类别 + 置信度）
-           char label[128];
-           snprintf(label, sizeof(label), "%s %.1f%%",
-                    det->name, det->prop * 100);
-
-           cv::putText(
-               img,
-               label,
-               cv::Point(x1, y1 - 5),
-               cv::FONT_HERSHEY_SIMPLEX,
-               0.8,
-               cv::Scalar(0, 255, 0),
-               1
-           );
-       }
-       emit drawRectFinish();
-
-}
 
 void YOLOWorker::inferRgb640(uint8_t *rgb)
 {
@@ -153,7 +107,10 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
            (__get_us(t1)-__get_us(t0))/1000.0,
            (__get_us(t2)-__get_us(t1))/1000.0,
            out->count);
-    drawRect(rgb);
+
+
+    emit drawRectReady(out);
+
     // 释放输出（非常关键）
     rknn_outputs_release(ctx, io_num.n_output, outputs.data());
     qDebug() << "done";

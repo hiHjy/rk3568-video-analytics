@@ -75,7 +75,7 @@ Widget::Widget(QWidget *parent)
 
     connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
     connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
-    connect(YOLO, &YOLOWorker::drawRectFinish, RGA, &RGAWorker::finalStep);
+    connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
 
     camT->start();
     rgaT->start();
@@ -140,6 +140,8 @@ void Widget::localDisplay(char *displayFramePtr, int width, int height)
 
     QImage img((uchar*)displayFramePtr, width, height, QImage::Format_RGB888);
     ui->label->setPixmap(QPixmap::fromImage(img));
+
+
 }
 
 

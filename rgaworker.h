@@ -9,6 +9,7 @@
 #include <rga.h>
 #include <memory>
 #include "RgaUtils.h"
+#include "postprocess.h"
 
 extern "C" {
 #include <unistd.h>
@@ -27,7 +28,7 @@ signals:
 
 public slots:
     void frameCvtColor(uchar* frame, uint32_t width, uint32_t height);
-    void finalStep();
+    void finalStep(detect_result_group_t* out);
 private:
     char* RGBFrame = nullptr;
     char*  encFrame = nullptr;

@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QThread>
 #include <QImage>
+#include <QDateTime>
+#include <opencv2/opencv.hpp>
 #define PERPIXBYTENUM 2
 RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 {
@@ -58,19 +60,96 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
 
 
-void RGAWorker::finalStep()
+void RGAWorker::finalStep(detect_result_group_t* out)
 {
-    //送去本地qt显示
-    emit displayFrameReady(yoloFrame, 640, 480);
+
     yoloRGB640X640  = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 480, RK_FORMAT_RGB_888, 640,480);
     dst_nv12 = wrapbuffer_virtualaddr((void*)encFrame, 640, 480, RK_FORMAT_YCbCr_420_SP, 640, 480);
-    //送去rkmpp编码退流
+    //计算fps
+    static int frame_count = 0;
+    static double fps = 0.0;
+    static auto last_time = std::chrono::steady_clock::now();
+
+    frame_count++;
+
+    auto now = std::chrono::steady_clock::now();
+    double elapsed = std::chrono::duration<double>(now - last_time).count();
+
+    if (elapsed >= 1.0) {
+        fps = frame_count / elapsed;
+        frame_count = 0;
+        last_time = now;
+    }
+
+    //在显示的帧上画时间
+    QDateTime date = QDateTime::currentDateTime();
+    char osd[128];
+    snprintf(osd, sizeof(osd), "%s         %.1ffps", date.toString("yyyy-MM-dd hh:mm:ss").toUtf8().data(), fps);
+    cv::Mat tmp(480, 640, CV_8UC3, yoloFrame);
+    cv::putText(tmp, osd, cv::Point(0, 30), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 255, 255), 2);
+
+
+
+
+
+    //在显示的帧上画yolo检测的框
+
+    if (out->count > 0) {
+
+
+        for (int i = 0; i < out->count; ++i) {
+            detect_result_t* det = &out->results[i];
+            if (det->prop < 60.0 / 100) continue; //置信度太低不画框
+
+            int x1 = det->box.left;
+            int y1 = det->box.top;
+            int x2 = det->box.right;
+            int y2 = det->box.bottom;
+
+            //  画矩形框
+            cv::rectangle(
+                        tmp,
+                        cv::Point(x1, y1),
+                        cv::Point(x2, y2),
+                        cv::Scalar(0, 255, 0),   // 绿色
+                        2
+                        );
+
+            // 画文字（类别）
+            char label[128];
+            snprintf(label, sizeof(label), "%s",
+                     det->name);
+
+            cv::putText(
+                        tmp,
+                        label,
+                        cv::Point(x1, y1 - 5),
+                        cv::FONT_HERSHEY_SIMPLEX,
+                        0.8,
+                        cv::Scalar(0, 255, 0),
+                        2
+                        );
+        }
+
+
+    }
+
+
+    //显示的帧准备就绪 送去本地qt显示
+    emit displayFrameReady(yoloFrame, 640, 480);
+
+
+
+
+
+    //准备要送去给rkmpp编码的帧
     int ret = imcvtcolor(yoloRGB640X640, dst_nv12, RK_FORMAT_RGB_888, RK_FORMAT_YCbCr_420_SP);
     if (ret !=  IM_STATUS_SUCCESS) {
         qDebug() << "imcvtcolor" ;
         return;
     }
 
+    //送去rkmpp编码推流
     emit encFrameReady(encFrame, 640, 480);
 
 }

@@ -9,6 +9,7 @@
 #include <rga.h>
 #include "RgaUtils.h"
 #include <camworker.h>
+#include <QDateTime>
 
 #include <QThread>
 class MPPWorker;
@@ -56,6 +57,7 @@ public:
     ~Widget();
 signals:
 public slots:
+
     void localDisplay(char * displayFramePtr, int width, int height);
 private:
     Ui::Widget *ui;
@@ -70,6 +72,11 @@ private:
     RGAWorker *RGA;
     MPPWorker *MPP;
     YOLOWorker *YOLO;
+    QDateTime date;
+    char osd[128];
+    uchar* encFrame;
+
+
 };
 
 

@@ -46,7 +46,8 @@ public:
 signals:
     // 你如果后面要跨线程把结果发出去，可以加信号
     // void yoloResultReady(detect_result_group_t result);
-    void drawRectFinish();
+
+    void drawRectReady(detect_result_group_t* out);
 
 public slots:
     void inferRgb640(uint8_t* rgb);
@@ -123,7 +124,7 @@ private:
     // 禁止拷贝（防止 ctx/model_data 被浅拷贝双 free）
     YOLOWorker(const YOLOWorker&) = delete;
     YOLOWorker& operator=(const YOLOWorker&) = delete;
-    void drawRect(uint8_t *rgb);
+
 
 };
 

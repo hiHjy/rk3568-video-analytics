@@ -27,6 +27,7 @@
 #include <rgaworker.h>
 #include <mppworker.h>
 #include <yoloworker.h>
+#include <inputfromrtsp.h>
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -39,12 +40,20 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     qDebug() << "主线程:" << QThread::currentThread();
+
+
+
+
+
     ui->setupUi(this);
+    rtspWorker = new InputFromRTSP(nullptr, "rtsp://192.168.1.19:8554/live");
     self = this;
 
-    camWorker = new CamWorker();
+    //    camWorker = new CamWorker();
     camT = new QThread(this);
-    camWorker->moveToThread(camT);
+    //    camWorker->moveToThread(camT);
+
+    rtspWorker->moveToThread(camT);
 
     rgaT = new QThread(this);
     RGA = new RGAWorker();
@@ -52,7 +61,7 @@ Widget::Widget(QWidget *parent)
 
 
 
-    MPP = new MPPWorker(camWorker->getWidth(), camWorker->getHeight());
+    MPP = new MPPWorker(640, 480);
     mppT = new QThread(this);
     MPP->moveToThread(mppT);
 
@@ -62,20 +71,24 @@ Widget::Widget(QWidget *parent)
     YOLO->moveToThread(yoloT);
 
 
-    connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
-    connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
-    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
+    //connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
+    connect(camT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
+    connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
+
+    //    connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
+    //    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
 
     connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
-    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
+    //    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
 
     connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
     connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
 
     connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
-    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
+
     connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
+    //    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
 
     camT->start();
     rgaT->start();

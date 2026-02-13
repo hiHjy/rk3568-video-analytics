@@ -1,4 +1,4 @@
-#ifndef WIDGET_H
+ #ifndef WIDGET_H
 #define WIDGET_H
 
 #include <QWidget>
@@ -15,6 +15,7 @@
 class MPPWorker;
 class RGAWorker;
 class YOLOWorker;
+class InputFromRTSP;
 #include <opencv2/opencv.hpp>
 extern "C" {
 
@@ -64,6 +65,7 @@ private:
     QImage *img;
     bool isFirst = true;
     CamWorker* camWorker;
+    InputFromRTSP *rtspWorker;
     static Widget *self;
     QThread *camT;
     QThread *rgaT;

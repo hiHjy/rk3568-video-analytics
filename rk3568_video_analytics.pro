@@ -11,6 +11,8 @@ QMAKE_LFLAGS   += -g
 
 SOURCES += \
     camworker.cpp \
+    inputfromrtsp.cpp \
+   inputmanager.cpp \
     main.cpp \
     mppworker.cpp \
     postprocess.cpp \
@@ -20,6 +22,8 @@ SOURCES += \
 
 HEADERS += \
     camworker.h \
+    inputfromrtsp.h \
+    inputmanager.h \
     mppworker.h \
     postprocess.h \
     rgaworker.h \
@@ -76,8 +80,8 @@ LIBS += \
     -lopencv_core \
     -lopencv_imgproc \
     -lopencv_imgcodecs \
-    -lopencv_highgui \
-    -lopencv_videoio
+#    -lopencv_highgui \
+#    -lopencv_videoio
 
 # ========================================================
 #  FFmpeg 6.1（来自 /opt/ffmpeg61）

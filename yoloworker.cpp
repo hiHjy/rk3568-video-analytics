@@ -46,7 +46,7 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
 
     timeval t0, t1, t2;
     gettimeofday(&t0, NULL);
-    printf("间隔=%.2fms\n", __get_us(t0) / 1000.0 - t_in/ 1000.0);
+   // printf("间隔=%.2fms\n", __get_us(t0) / 1000.0 - t_in/ 1000.0);
     t_in = __get_us(t0);
 
     ret = rknn_inputs_set(ctx, 1, inputs);
@@ -103,17 +103,17 @@ void YOLOWorker::inferRgb640(uint8_t *rgb)
 
     gettimeofday(&t2, NULL);
 
-    printf("run=%.2f ms, post=%.2f ms, det=%d\n",
-           (__get_us(t1)-__get_us(t0))/1000.0,
-           (__get_us(t2)-__get_us(t1))/1000.0,
-           out->count);
+//    printf("run=%.2f ms, post=%.2f ms, det=%d\n",
+//           (__get_us(t1)-__get_us(t0))/1000.0,
+//           (__get_us(t2)-__get_us(t1))/1000.0,
+//           out->count);
 
 
     emit drawRectReady(out);
 
     // 释放输出（非常关键）
     rknn_outputs_release(ctx, io_num.n_output, outputs.data());
-    qDebug() << "done";
+    //qDebug() << "done";
 }
 
 void YOLOWorker::dump_tensor_attr(rknn_tensor_attr *attr)

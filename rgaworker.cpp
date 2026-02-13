@@ -14,7 +14,7 @@ RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 
 void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 {
-
+    //qDebug() << "-----------------------------------------------";
     if (!RGBFrame || !encFrame || !yoloFrame) {
         RGBFrame = (char *)malloc(sizeof(char) * width * height * 3);
         yoloFrame = (char*)malloc(640*640*3);
@@ -28,12 +28,12 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
     /***************** rga硬件加速****************************8 */
 
-    src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YUYV_422, (int)width,(int) height);
+    src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YCbCr_420_SP, (int)width,(int) height);
     dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
 
 
 
-    int ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
+    int ret = imcvtcolor(src, dst, RK_FORMAT_YCbCr_420_SP, RK_FORMAT_RGB_888);
     if (ret !=  IM_STATUS_SUCCESS) {
         qDebug() << "imcvtcolor" ;
         return;
@@ -62,7 +62,7 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
 void RGAWorker::finalStep(detect_result_group_t* out)
 {
-
+    //qDebug() << "9999999999999999999999999999999999999999999999999999999999999999999999999999";
     yoloRGB640X640  = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 480, RK_FORMAT_RGB_888, 640,480);
     dst_nv12 = wrapbuffer_virtualaddr((void*)encFrame, 640, 480, RK_FORMAT_YCbCr_420_SP, 640, 480);
     //计算fps
@@ -126,7 +126,7 @@ void RGAWorker::finalStep(detect_result_group_t* out)
                         cv::Point(x1, y1 - 5),
                         cv::FONT_HERSHEY_SIMPLEX,
                         0.8,
-                        cv::Scalar(0, 255, 0),
+                        cv::Scalar(255, 0, 255),
                         2
                         );
         }

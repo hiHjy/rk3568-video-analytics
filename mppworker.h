@@ -28,8 +28,9 @@ private:
     uint64_t pts = 0;
     void rtspInit();
     AVCodecContext *enc_ctx = nullptr;
+
     AVFrame *enc_frame = nullptr;
-    AVPacket *enc_pkt;
+    AVPacket *enc_pkt = nullptr;
     AVFormatContext *rtsp_ctx;
     AVStream *rtsp_stream;
     void print_error(const char *msg, int err);

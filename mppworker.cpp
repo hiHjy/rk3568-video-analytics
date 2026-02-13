@@ -1,16 +1,17 @@
 #include "mppworker.h"
 #include <QDebug>
 #define FPS 30
+#define RTSP_URL
 MPPWorker::MPPWorker(int w, int h)
     : width(w), height(h)
+
 {
+    avformat_network_init();
     const AVCodec *encoder = avcodec_find_encoder_by_name("h264_rkmpp");
     if (!encoder) {
         qDebug() << " avcodec_find_encoder_by_name(\"h264_rkmpp\") error";
         return;
     }
-
-
     enc_ctx = avcodec_alloc_context3(encoder);
     if (!enc_ctx) {
         qDebug() << "avcodec_alloc_context3 error";
@@ -22,15 +23,16 @@ MPPWorker::MPPWorker(int w, int h)
     enc_ctx->time_base = {1, FPS};
     enc_ctx->framerate = {FPS, 1};
     enc_ctx->gop_size = FPS;
-
+    enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER; // 全局头（RTSP必需）
     enc_ctx->bit_rate = 3 * 1000 * 1000; //不知道是啥
     enc_ctx->max_b_frames = 0; //关闭B帧
     av_opt_set(enc_ctx->priv_data, "tune", "zerolatency", 0);
     av_opt_set(enc_ctx->priv_data, "preset", "veryfast", 0);
+    //av_opt_set(enc_ctx->priv_data, "x264-params", "repeat-headers=1:aud=1:scenecut=0", 0);
     int ret = avcodec_open2(enc_ctx, encoder, NULL); //启动
     if (ret < 0) {
         print_error("avcodec_open2", ret);
-
+        return;
     }
     //编码要用的buf
     enc_frame = av_frame_alloc();
@@ -47,6 +49,9 @@ MPPWorker::MPPWorker(int w, int h)
     }
     qDebug() << "编码器启动成功！";
     rtspInit();
+
+
+
 
 
 }
@@ -85,6 +90,8 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
             print_error("avcodec_receive_packet error", ret);
             return;
         }
+
+        //qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
         enc_pkt->stream_index = rtsp_stream->index;
 
         //时间戳换算
@@ -93,6 +100,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
                     enc_ctx->time_base,
                     rtsp_stream->time_base
                     );
+
         ret = av_interleaved_write_frame(rtsp_ctx, enc_pkt); //推流
         if (ret < 0) {
             print_error("av_interleaved_write_frame", ret);
@@ -101,7 +109,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
 
         //打包了一个packet
 
-        //        qDebug() << "编码获得第 "<< enc_pkt->pts << "个packet size:" << enc_pkt->size << " dts:" << enc_pkt->dts;
+
 
 
 
@@ -151,6 +159,11 @@ void MPPWorker::rtspInit()
     AVDictionary *rtsp_opts = nullptr;
 
     av_dict_set(&rtsp_opts, "rtsp_transport", "tcp", 0);
+
+    //    // 关键：先 open，再写 header
+    //    ret = avio_open2(&rtsp_ctx->pb, "rtsp://127.0.0.1:8554/live", AVIO_FLAG_WRITE, nullptr, &rtsp_opts);
+    //    if (ret < 0) { print_error("avio_open2", ret); return; }
+
     //将容器rtsp的头部信息（Header） 写入文件。
     ret = avformat_write_header(rtsp_ctx, &rtsp_opts);
     if (ret < 0) {
@@ -174,4 +187,5 @@ MPPWorker::~MPPWorker()
     av_frame_free(&enc_frame);
     avcodec_free_context(&enc_ctx);
     qDebug() << " 编码器工作线程正常退出";
+
 }

@@ -37,7 +37,7 @@ public:
     int getWidth() const;
 
     int getHeight() const;
-
+    ~CamWorker();
 signals:
     void yuvFrameReady(uchar *frame, uint width, uint height);
 public slots:
@@ -55,7 +55,7 @@ private:
     int camInitBuffer();
 
 
-    ~CamWorker();
+
 };
 
 #endif // CAMWORKER_H

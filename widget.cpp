@@ -28,6 +28,7 @@
 #include <mppworker.h>
 #include <yoloworker.h>
 #include <inputfromrtsp.h>
+#include "inputmanager.h"
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -46,14 +47,14 @@ Widget::Widget(QWidget *parent)
 
 
     ui->setupUi(this);
-    rtspWorker = new InputFromRTSP(nullptr, "rtsp://192.168.1.19:8554/live");
+    //rtspWorker = new InputFromRTSP(nullptr, "rtsp://192.168.1.19:8554/live");
     self = this;
 
     //    camWorker = new CamWorker();
-    camT = new QThread(this);
+    //camT = new QThread(this);
     //    camWorker->moveToThread(camT);
 
-    rtspWorker->moveToThread(camT);
+    //rtspWorker->moveToThread(camT);
 
     rgaT = new QThread(this);
     RGA = new RGAWorker();
@@ -72,8 +73,8 @@ Widget::Widget(QWidget *parent)
 
 
     //connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
-    connect(camT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
-    connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
+    //connect(camT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
+    //connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
     //    connect(camT, &QThread::finished, camWorker, &QObject::deleteLater);
     //    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
@@ -90,10 +91,16 @@ Widget::Widget(QWidget *parent)
     connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
     //    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
 
-    camT->start();
+    //camT->start();
     rgaT->start();
     mppT->start();
     yoloT->start();
+
+
+    InputManager *inputManager = new InputManager(this, InputStreamType::LOCAL, "rtsp://192.168.1.19:8554/live", RGA);
+
+
+
     //cv::Mat (50,50,CV_8UC3);
     //    worker = new Worker();
     //    worker->start();
@@ -102,16 +109,16 @@ Widget::Widget(QWidget *parent)
 
 Widget::~Widget()
 {
-    if (camT && camT->isRunning()) {
+//    if (camT && camT->isRunning()) {
 
-        camT->requestInterruption();
-        camT->quit();
-        if (camT->wait(3000)) {
-            qDebug() << "采集线程正常结束";
-        } else {
-            qDebug() << "采集线程还在运行，没有正常结束";
-        }
-    }
+//        camT->requestInterruption();
+//        camT->quit();
+//        if (camT->wait(3000)) {
+//            qDebug() << "采集线程正常结束";
+//        } else {
+//            qDebug() << "采集线程还在运行，没有正常结束";
+//        }
+//    }
 
     if (rgaT && rgaT->isRunning()) {
 

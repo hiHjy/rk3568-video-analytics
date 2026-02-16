@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QMutex>
-
+#include "type.h"
 extern "C" {
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
@@ -14,6 +14,7 @@ extern "C" {
 #include <stdio.h>
 #include <sys/mman.h>
 #include <poll.h>
+
 }
 
 struct cam_buf {
@@ -39,7 +40,7 @@ public:
     int getHeight() const;
     ~CamWorker();
 signals:
-    void yuvFrameReady(uchar *frame, uint width, uint height);
+    void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type);
 public slots:
     void camRun();
     void camStartCapture();

@@ -11,7 +11,7 @@ CamWorker::CamWorker(QObject *parent) : QObject(parent)
 {
     camInit();
     camInitBuffer();
-    camRun();
+    //camRun();
     //qDebug() << QString::number(V4L2_PIX_FMT_YUYV, 16);
 }
 
@@ -22,12 +22,14 @@ void CamWorker::camRun()
     fds.fd = v4l2_fd;
     fds.events = POLLIN;
     struct v4l2_buffer buf;
-    camStartCapture();
     uchar *tmpBuf = (uchar*)malloc(buf_infos[0].length);
     if (!tmpBuf) {
         perror("malloc");
         return;
     }
+    camStartCapture();
+
+
 
     qDebug() << "采集线程:" << QThread::currentThread();
     while (!QThread::currentThread()->isInterruptionRequested()) {
@@ -40,6 +42,7 @@ void CamWorker::camRun()
         if (QThread::currentThread()->isInterruptionRequested()) {
             break;
         }
+
         if (ret == 0) continue; //如果超时,那么重新来
         if (ret < 0) {
             qDebug() << "[camRun]poll error";
@@ -59,8 +62,8 @@ void CamWorker::camRun()
             size_t n = buf.bytesused ? buf.bytesused : buf_infos[buf.index].length;
             memcpy(tmpBuf, buf_infos[buf.index].start, n);
 
-
-            emit yuvFrameReady(tmpBuf, width, height);
+            //qDebug() << "emit yuvFrameReady in thread" << QThread::currentThread();
+            emit yuvFrameReady(tmpBuf, width, height, InputStreamType::LOCAL);
 
             //获取到一帧数据
             if(ioctl(v4l2_fd, VIDIOC_QBUF, &buf) < 0) {

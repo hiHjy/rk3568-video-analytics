@@ -12,9 +12,10 @@ RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 
 }
 
-void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
+void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height, InputStreamType type)
 {
-    //qDebug() << "-----------------------------------------------";
+
+    int ret = -1;
     if (!RGBFrame || !encFrame || !yoloFrame) {
         RGBFrame = (char *)malloc(sizeof(char) * width * height * 3);
         yoloFrame = (char*)malloc(640*640*3);
@@ -27,17 +28,37 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height)
 
 
     /***************** rga硬件加速****************************8 */
+    switch (type) {
+    case InputStreamType::LOCAL:
+        src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YUYV_422, (int)width,(int) height);
+        dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
 
-    src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YCbCr_420_SP, (int)width,(int) height);
-    dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
+
+
+        ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
+        if (ret !=  IM_STATUS_SUCCESS) {
+            qDebug() << "imcvtcolor" ;
+            return;
+        }
+        break;
+
+    case InputStreamType::RTSP:
+        src = wrapbuffer_virtualaddr((void*)frame, width, height, RK_FORMAT_YCbCr_420_SP, (int)width,(int) height);
+        dst = wrapbuffer_virtualaddr((void*)RGBFrame, width, height, RK_FORMAT_RGB_888, (int)width, (int)height);
 
 
 
-    int ret = imcvtcolor(src, dst, RK_FORMAT_YCbCr_420_SP, RK_FORMAT_RGB_888);
-    if (ret !=  IM_STATUS_SUCCESS) {
-        qDebug() << "imcvtcolor" ;
-        return;
+        ret = imcvtcolor(src, dst, RK_FORMAT_YCbCr_420_SP, RK_FORMAT_RGB_888);
+        if (ret !=  IM_STATUS_SUCCESS) {
+            qDebug() << "imcvtcolor" ;
+            return;
+        }
+        break;
     }
+
+
+
+
 
     //yolo
     yoloRGB640X640  = wrapbuffer_virtualaddr((void*)yoloFrame, 640, 640, RK_FORMAT_RGB_888, 640,640);

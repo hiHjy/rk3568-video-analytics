@@ -27,6 +27,7 @@ HEADERS += \
     mppworker.h \
     postprocess.h \
     rgaworker.h \
+    type.h \
     widget.h \
     yoloworker.h
 

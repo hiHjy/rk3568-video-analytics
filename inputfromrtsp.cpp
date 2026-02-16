@@ -9,10 +9,14 @@ void print_error(const char *msg, int err)
     qDebug() << msg << buf;
 }
 
+//逻辑可能有问题
 int InputFromRTSP::interrupt_cb(void *opaque) {
     InputFromRTSP *self = static_cast<InputFromRTSP*>(opaque);
+
+
     return self->stop_flag.load() ? 1 : 0;  // 1=中断阻塞
 }
+
 
 InputFromRTSP::InputFromRTSP(QObject *parent, QString url) : QObject(parent)
 {
@@ -42,7 +46,7 @@ InputFromRTSP::InputFromRTSP(QObject *parent, QString url) : QObject(parent)
     //通过检查this下的某个标志为来确认用户是否需要中断阻塞，当用户要中断，会返回AVERROR_EXIT一个负数
     fmt_ctx ->interrupt_callback.callback = interrupt_cb;
     fmt_ctx ->interrupt_callback.opaque = this;
-
+    qDebug() << url.toStdString().c_str();
     int ret = avformat_open_input(&fmt_ctx, url.toStdString().c_str(), NULL, &opts);
     if (ret < 0) {
         print_error("avformat_open_input", ret);
@@ -165,14 +169,14 @@ InputFromRTSP::~InputFromRTSP()
     free(yuvFrame);
     qDebug() << "[rtsp worker] 被释放";
 }
-static std::vector<uint8_t> nv12_contig;
+
 void InputFromRTSP::decodeH264ToNV12()
 {
     int ret = -1;
-    int n = 0;
-    while (true) {
+    //int n = 0;
+    while (true ) {
 
-        while ((ret = av_read_frame(fmt_ctx, pkt)) >= 0) {
+        while ((ret = av_read_frame(fmt_ctx, pkt)) >= 0 && !QThread::currentThread()->isInterruptionRequested()) {
             //qDebug() << "av_read_frame ret" << ret;
             if (ret == AVERROR(EAGAIN))
                 print_error("receive_frame", ret);
@@ -235,7 +239,7 @@ void InputFromRTSP::decodeH264ToNV12()
 
                     //yuvFrame = (uchar*)frame->data[0];
 
-                    emit yuvFrameReady(yuvFrame, 640, 480);
+                    emit yuvFrameReady(yuvFrame, 640, 480, InputStreamType::RTSP);
 
                     //程序到这里成功获取了一帧yuv420数据
                     //printf("get frame:%dx%d pix_fmt=%d n=%d\n", frame->width, frame->height, frame->format, ++n);
@@ -245,6 +249,7 @@ void InputFromRTSP::decodeH264ToNV12()
                 }
 
             }
+
             av_packet_unref(pkt); //表示购物车已经清空了，可以继续进货了
 
         }

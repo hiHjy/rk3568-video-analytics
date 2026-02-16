@@ -3,37 +3,40 @@
 
 #include <QObject>
 #include <QThread>
-#include <QTimer>
+#include <type.h>
 class CamWorker;
 class InputFromRTSP;
-enum class  InputStreamType {
-    LOCAL,
-    RTSP,
-};
+class RGAWorker;
 class InputManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit InputManager(QObject *parent = nullptr, QThread *workThread = nullptr,
+    explicit InputManager(QObject *parent = nullptr,
                           InputStreamType type = InputStreamType::LOCAL,
-                          QString url = ""
+                          QString url = "",
+                          RGAWorker *RGA = nullptr
             );
     ~InputManager();
 signals:
     void inputStreamModeChanged();
+public slots:
+     void setInputMode(InputStreamType inputType, QString rtspURL = "");
 private:
-    QThread *workThread = nullptr;
+
     InputStreamType type = InputStreamType::LOCAL;
     InputStreamType lastType;
-    QTimer timer;
-    CamWorker *camWorker = nullptr;
-    InputFromRTSP *rtspWorker = nullptr;
     QString url = "";
-    void releaseCurStream();
-    void setInputStreamMode();
+
+
+    QThread *workT = nullptr;
+    InputFromRTSP *rtspWorker = nullptr;
+    CamWorker *camWorker = nullptr;
+    RGAWorker *RGA = nullptr;
+
+    void releaseThread();
+
 private slots:
-    void checkInputStreamType();
-    void switchInputStream();
+
 
 
 };

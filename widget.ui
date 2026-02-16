@@ -19,31 +19,235 @@
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QLabel" name="label">
+  <property name="styleSheet">
+   <string notr="true">QWidget#Widget  {
+ 
+	background-color: rgb(37, 40, 48);
+
+}
+
+QWidget#widget_input_select  {
+ 
+		 border: 4px ridge rgb(37, 40, 48); 
+
+}
+
+
+
+QLabel#lb_title {
+    color: #ffffff; 
+}
+QLabel#lb_img {
+   
+	  border: 4px ridge rgb(37, 40, 48); 
+}
+
+QPushButton {
+    color: white;  /* 使用颜色名称 */
+ 	border:none;
+
+	
+}
+QPushButton:hover {
+    background-color: #2980b9;  /* 悬停时 - 深蓝色 */
+}
+QFrame#frame {
+	 background-color:rgb(102,102,102);  /* 颜色 */
+    max-height: 1px;            /* 高度1像素 */
+    min-height: 1px;
+    border: none;
+
+}
+QFrame#frame_2 {
+	 background-color:rgb(102,102,102);  /* 颜色 */
+    max-width: 1px;            /* 高度1像素 */
+    min-width: 1px;
+    border: none;
+         
+
+}</string>
+  </property>
+  <widget class="QLabel" name="lb_title">
    <property name="geometry">
     <rect>
-     <x>460</x>
-     <y>190</y>
-     <width>640</width>
-     <height>480</height>
+     <x>490</x>
+     <y>40</y>
+     <width>721</width>
+     <height>71</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>40</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(173, 127, 168);</string>
+    <string notr="true"/>
    </property>
    <property name="text">
-    <string/>
+    <string>YOLO智能视频监测平台</string>
    </property>
   </widget>
-  <widget class="QTimeEdit" name="timeEdit">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>1270</x>
-     <y>130</y>
-     <width>118</width>
-     <height>26</height>
+     <x>220</x>
+     <y>230</y>
+     <width>1271</width>
+     <height>482</height>
     </rect>
    </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="lb_img">
+      <property name="minimumSize">
+       <size>
+        <width>640</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>640</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_input_select" native="true">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>1</x>
+         <y>2</y>
+         <width>580</width>
+         <height>471</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="btn_local">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>本地摄像头</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>1</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::VLine</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_remote">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>远程摄像头</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>578</width>
+            <height>1</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QStackedWidget" name="stackedWidget">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="page_local"/>
+          <widget class="QWidget" name="page_remote"/>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

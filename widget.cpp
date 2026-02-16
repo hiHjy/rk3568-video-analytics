@@ -47,6 +47,7 @@ Widget::Widget(QWidget *parent)
 
 
     ui->setupUi(this);
+
     //rtspWorker = new InputFromRTSP(nullptr, "rtsp://192.168.1.19:8554/live");
     self = this;
 
@@ -56,20 +57,20 @@ Widget::Widget(QWidget *parent)
 
     //rtspWorker->moveToThread(camT);
 
-    rgaT = new QThread(this);
-    RGA = new RGAWorker();
-    RGA->moveToThread(rgaT);
+//    rgaT = new QThread(this);
+//    RGA = new RGAWorker();
+//    RGA->moveToThread(rgaT);
 
 
 
-    MPP = new MPPWorker(640, 480);
-    mppT = new QThread(this);
-    MPP->moveToThread(mppT);
+//    MPP = new MPPWorker(640, 480);
+//    mppT = new QThread(this);
+//    MPP->moveToThread(mppT);
 
 
-    YOLO = new YOLOWorker();
-    yoloT = new QThread(this);
-    YOLO->moveToThread(yoloT);
+//    YOLO = new YOLOWorker();
+//    yoloT = new QThread(this);
+//    YOLO->moveToThread(yoloT);
 
 
     //connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
@@ -80,24 +81,24 @@ Widget::Widget(QWidget *parent)
     //    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
 
-    connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
-    //    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
+//    connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
+//    //    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
 
-    connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
-    connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
+//    connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
+//    connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
 
-    connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
+//    connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
 
-    connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
-    //    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
+//    connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
+//    //    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
 
-    //camT->start();
-    rgaT->start();
-    mppT->start();
-    yoloT->start();
+//    //camT->start();
+//    rgaT->start();
+//    mppT->start();
+//    yoloT->start();
 
 
-    InputManager *inputManager = new InputManager(this, InputStreamType::LOCAL, "rtsp://192.168.1.19:8554/live", RGA);
+    //InputManager *inputManager = new InputManager(this, InputStreamType::LOCAL, "rtsp://192.168.1.19:8554/live", RGA);
 
 
 
@@ -159,7 +160,8 @@ void Widget::localDisplay(char *displayFramePtr, int width, int height)
 {
 
     QImage img((uchar*)displayFramePtr, width, height, QImage::Format_RGB888);
-    ui->label->setPixmap(QPixmap::fromImage(img));
+    ui->lb_img->setPixmap(QPixmap::fromImage(img));
+
 
 
 }

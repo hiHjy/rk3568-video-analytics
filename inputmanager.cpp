@@ -41,7 +41,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         connect(workT, &QThread::finished, camWorker, &QObject::deleteLater);
 
         connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
-
+        connect(camWorker,  &QObject::destroyed, this, [=](){ camWorker  = nullptr; });
 
         workT->start();
         qDebug() << "当前使用输入流：本地摄像头";
@@ -53,6 +53,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
             qDebug() << "url is null";
             return;
         }
+
         releaseThread();
         workT = new QThread(this);
         rtspWorker = new InputFromRTSP(nullptr, rtspURL);
@@ -60,6 +61,8 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         connect(workT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
         connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
         connect(workT, &QThread::finished, rtspWorker, &QObject::deleteLater);
+        connect(rtspWorker, &QObject::destroyed, this, [=](){ rtspWorker = nullptr; });
+
         workT->start();
         qDebug() << "当前使用输入流：rtsp";
         break;

@@ -10,7 +10,7 @@
 #include "RgaUtils.h"
 #include <camworker.h>
 #include <QDateTime>
-
+#include <QButtonGroup>
 #include <QThread>
 class MPPWorker;
 class RGAWorker;
@@ -59,9 +59,19 @@ public:
     Worker *worker;
     ~Widget();
 signals:
+    void selectInputStream(InputStreamType type, QString url);
 public slots:
 
     void localDisplay(char * displayFramePtr, int width, int height);
+private slots:
+    void on_btn_local_clicked();
+
+    void on_btn_remote_clicked();
+
+    void on_btn_start_cam_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     Ui::Widget *ui;
     QImage *img;
@@ -69,6 +79,7 @@ private:
     CamWorker* camWorker;
     InputFromRTSP *rtspWorker;
     static Widget *self;
+    QButtonGroup *btnG;
     QThread *camT;
     QThread *rgaT;
     QThread *mppT;

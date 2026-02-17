@@ -29,6 +29,9 @@
 #include <yoloworker.h>
 #include <inputfromrtsp.h>
 #include "inputmanager.h"
+#include <QAbstractItemView>
+#include <QListView>
+
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -42,13 +45,34 @@ Widget::Widget(QWidget *parent)
 {
     qDebug() << "主线程:" << QThread::currentThread();
 
-
+    //    qDebug() << "local geo" << ui->btn_local->geometry();
+    //    qDebug() << "line  geo" << ui->frame_2->geometry();
+    //    qDebug() << "remote geo" << ui->btn_remote->geometry();
 
 
 
     ui->setupUi(this);
-
+    //qDebug() << ui->comboBox->view()->metaObject()->className();
     //rtspWorker = new InputFromRTSP(nullptr, "rtsp://192.168.1.19:8554/live");
+    QListView * listView = new QListView(ui->comboBox);;
+    ui->comboBox->setView(listView);
+
+    ui->btn_local->clicked(true);
+
+//    btnG = new QButtonGroup(this);
+//    btnG->setExclusive(true);
+
+//    btnG->addButton(ui->btn_start_cam);
+//    btnG->addButton(ui->btn_stop_cam);
+//    ui->btn_start_cam->setCheckable(true);
+
+//    ui->btn_stop_cam->setCheckable(true);
+
+
+
+    //    listView->setStyleSheet(
+    //        "QListView::item:hover { background: red; }"
+    //    );
     self = this;
 
     //    camWorker = new CamWorker();
@@ -57,20 +81,20 @@ Widget::Widget(QWidget *parent)
 
     //rtspWorker->moveToThread(camT);
 
-//    rgaT = new QThread(this);
-//    RGA = new RGAWorker();
-//    RGA->moveToThread(rgaT);
+        rgaT = new QThread(this);
+        RGA = new RGAWorker();
+        RGA->moveToThread(rgaT);
 
 
 
-//    MPP = new MPPWorker(640, 480);
-//    mppT = new QThread(this);
-//    MPP->moveToThread(mppT);
+        MPP = new MPPWorker(640, 480);
+        mppT = new QThread(this);
+        MPP->moveToThread(mppT);
 
 
-//    YOLO = new YOLOWorker();
-//    yoloT = new QThread(this);
-//    YOLO->moveToThread(yoloT);
+        YOLO = new YOLOWorker();
+        yoloT = new QThread(this);
+        YOLO->moveToThread(yoloT);
 
 
     //connect(camT, &QThread::started, camWorker, &CamWorker::camRun);
@@ -81,26 +105,28 @@ Widget::Widget(QWidget *parent)
     //    connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
 
 
-//    connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
-//    //    connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
+        connect(RGA, &RGAWorker::displayFrameReady, this, &Widget::localDisplay);
+            connect(rgaT, &QThread::finished, RGA, &QObject::deleteLater);
 
-//    connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
-//    connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
+        connect(RGA, &RGAWorker::encFrameReady, MPP, &MPPWorker::encode2H264);
+        connect(mppT, &QThread::finished, MPP, &QObject::deleteLater);
 
-//    connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
+        connect(RGA, &RGAWorker::yoloRGB640X640Ready, YOLO, &YOLOWorker::inferRgb640);
 
-//    connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
-//    //    connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
+        connect(YOLO, &YOLOWorker::drawRectReady, RGA, &RGAWorker::finalStep);
+            connect(yoloT, &QThread::finished, YOLO, &QObject::deleteLater);
 
-//    //camT->start();
-//    rgaT->start();
-//    mppT->start();
-//    yoloT->start();
-
-
-    //InputManager *inputManager = new InputManager(this, InputStreamType::LOCAL, "rtsp://192.168.1.19:8554/live", RGA);
+    //    //camT->start();
+        rgaT->start();
+        mppT->start();
+        yoloT->start();
 
 
+
+
+    InputManager *inputManager = new InputManager(this, InputStreamType::LOCAL, "rtsp://192.168.1.19:8554/live", RGA);
+
+    connect(this, &Widget::selectInputStream, inputManager, &InputManager::setInputMode);
 
     //cv::Mat (50,50,CV_8UC3);
     //    worker = new Worker();
@@ -110,16 +136,16 @@ Widget::Widget(QWidget *parent)
 
 Widget::~Widget()
 {
-//    if (camT && camT->isRunning()) {
+    //    if (camT && camT->isRunning()) {
 
-//        camT->requestInterruption();
-//        camT->quit();
-//        if (camT->wait(3000)) {
-//            qDebug() << "采集线程正常结束";
-//        } else {
-//            qDebug() << "采集线程还在运行，没有正常结束";
-//        }
-//    }
+    //        camT->requestInterruption();
+    //        camT->quit();
+    //        if (camT->wait(3000)) {
+    //            qDebug() << "采集线程正常结束";
+    //        } else {
+    //            qDebug() << "采集线程还在运行，没有正常结束";
+    //        }
+    //    }
 
     if (rgaT && rgaT->isRunning()) {
 
@@ -336,3 +362,49 @@ void Worker::run()
 
 }
 #endif
+
+void Widget::on_btn_local_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+    ui->btn_remote->setChecked(false);
+    ui->btn_local->setChecked(true);
+
+}
+
+
+void Widget::on_btn_remote_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->btn_local->setChecked(false);
+    ui->btn_remote->setChecked(true);
+}
+
+
+void Widget::on_btn_start_cam_clicked()
+{
+    emit selectInputStream(InputStreamType::LOCAL, NULL);
+
+}
+
+
+void Widget::on_pushButton_clicked()
+{
+
+    QString protocol = ui->comboBox->currentText();
+    QString url = "";
+    if (protocol == "RTSP") {
+
+        url = "rtsp://" + ui->le_addr->text().trimmed();
+        qDebug() << "url:" << url;
+        emit selectInputStream(InputStreamType::RTSP, url);
+
+
+    } else if (protocol == "RTMP") {
+        //todo
+
+    }
+
+
+
+}
+

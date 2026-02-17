@@ -22,7 +22,7 @@ InputFromRTSP::InputFromRTSP(QObject *parent, QString url) : QObject(parent)
 {
 
     avformat_network_init();
-    yuvFrame = (uchar *)malloc(640 * 480 * 3 /2);
+    //yuvFrame = (uchar *)malloc(640 * 480 * 3 /2);
     const AVCodec *decoder = avcodec_find_decoder_by_name("h264_rkmpp");
     if (!decoder) {
         qDebug() << " avcodec_find_decoder_by_name(\"h264_rkmpp\") error";
@@ -166,7 +166,12 @@ InputFromRTSP::~InputFromRTSP()
     }
     if (pkt) av_packet_free(&pkt);
     if (frame) av_frame_free(&frame);
-    free(yuvFrame);
+//    if (yuvFrame) {
+
+//        free(yuvFrame);
+//        yuvFrame = nullptr;
+//    }
+
     qDebug() << "[rtsp worker] 被释放";
 }
 
@@ -252,6 +257,10 @@ void InputFromRTSP::decodeH264ToNV12()
 
             av_packet_unref(pkt); //表示购物车已经清空了，可以继续进货了
 
+        }
+        if (QThread::currentThread()->isInterruptionRequested()) {
+            avformat_network_deinit();
+            break;
         }
 
 

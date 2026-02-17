@@ -131,8 +131,8 @@ QComboBox QComboBoxListView::item:selected {
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>230</y>
+     <x>160</x>
+     <y>240</y>
      <width>1271</width>
      <height>482</height>
     </rect>

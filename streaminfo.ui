@@ -66,10 +66,10 @@ QWidget #widget{
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>20</x>
      <y>90</y>
-     <width>451</width>
-     <height>301</height>
+     <width>541</width>
+     <height>311</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_6">

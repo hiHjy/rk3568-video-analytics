@@ -95,6 +95,7 @@ private:
     char osd[128];
     uchar* encFrame;
     QWidget *streamInfo;
+    bool enableDisplay = true;
 
 
 

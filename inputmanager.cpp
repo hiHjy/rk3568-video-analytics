@@ -26,6 +26,8 @@ void InputManager::disconn()
 
 }
 
+
+//清理有问题
 void InputManager::showStreamInfo(InputStreamType type, QString streamType, QString url, QWidget *p)
 {
 
@@ -38,7 +40,7 @@ void InputManager::showStreamInfo(InputStreamType type, QString streamType, QStr
             releaseThread();
 
             streamInfo->hide();
-            QTimer::singleShot(1000, this, [this](){
+            QTimer::singleShot(200, this, [this](){
                 qDebug() << "执行";
                 emit requestClear();
 

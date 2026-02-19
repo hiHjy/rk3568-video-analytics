@@ -113,6 +113,7 @@ Widget::Widget(QWidget *parent)
     connect(this, &Widget::selectInputStream, inputManager, &InputManager::setInputStream);
     connect(inputManager, &InputManager::requestClear, this, [this](){
 
+        this->enableDisplay = false;
         ui->lb_img->clear();
         ui->lb_img->setStyleSheet("background:rgb(37,40,48);");
 
@@ -172,6 +173,9 @@ Widget::~Widget()
 void Widget::localDisplay(char *displayFramePtr, int width, int height)
 {
 
+    if (!enableDisplay) {
+        return;
+    }
     QImage img((uchar*)displayFramePtr, width, height, QImage::Format_RGB888);
     ui->lb_img->setPixmap(QPixmap::fromImage(img));
 
@@ -369,6 +373,7 @@ void Widget::on_btn_remote_clicked()
 
 void Widget::on_btn_start_cam_clicked()
 {
+    enableDisplay = true;
     emit selectInputStream(InputStreamType::LOCAL, "本地", "", ui->widget_input_select);
 
 }
@@ -378,6 +383,7 @@ void Widget::on_btn_start_cam_clicked()
 void Widget::on_btn_remote_conn_clicked()
 {
 
+    enableDisplay = true;
     QString protocol = ui->comboBox->currentText();
     QString url = "";
 

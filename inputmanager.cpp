@@ -2,19 +2,122 @@
 #include "camworker.h"
 #include "inputfromrtsp.h"
 #include "QDebug"
+#include "streaminfo.h"
 #include "rgaworker.h"
+#include <QTimer>
 InputManager::InputManager(QObject *parent, InputStreamType type, QString url, RGAWorker *RGA) :
     QObject(parent), type(type), url(url), RGA(RGA)
 {
-    lastType = type;
+    //    lastType = type;
 
-    setInputMode(type, url);
+    //    setInputMode(type, url);
 
 
 }
 
 InputManager::~InputManager()
 {
+
+}
+
+void InputManager::disconn()
+{
+    releaseThread();
+
+}
+
+void InputManager::showStreamInfo(InputStreamType type, QString streamType, QString url, QWidget *p)
+{
+
+    if (!streamInfo) {
+        streamInfo = new StreamInfo(p);
+        streamInfo->setAttribute(Qt::WA_StyledBackground, true);
+        streamInfo->setAutoFillBackground(true);
+        connect(this, &InputManager::displayStreamInfoReady, streamInfo, &StreamInfo::display);
+        connect(streamInfo, &StreamInfo::requsetDisconn, this, [this](){
+            releaseThread();
+
+            streamInfo->hide();
+            QTimer::singleShot(1000, this, [this](){
+                qDebug() << "执行";
+                emit requestClear();
+
+
+            });
+
+        });
+
+
+    }
+
+
+
+    streamInfo->raise();
+
+    if (type == InputStreamType::RTSP) {
+
+        emit displayStreamInfoReady(streamType, url);
+    } else if (type == InputStreamType::LOCAL) {
+        url = "-";
+        emit displayStreamInfoReady(streamType, url);
+    }
+    streamInfo->show();
+
+
+}
+
+void InputManager::setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p)
+{
+    dialog = new Dialog(p);
+
+    //先画对话框
+    dialog->show();
+
+    if (type == InputStreamType::RTSP) {
+
+
+        //20ms后执行
+        QTimer::singleShot(20, this, [=](){
+
+
+            setInputMode(type, url);
+
+            connect(rtspWorker, &InputFromRTSP::connectSuccess, dialog, [=](){
+                //dialog->close();
+                dialog->deleteLater();
+                dialog = nullptr;
+                qDebug() << "执行";
+                showStreamInfo(type, streamType, url, p);
+
+            });
+
+
+        });
+
+
+
+
+    } else if (type == InputStreamType::LOCAL){
+        //20ms后执行
+        QTimer::singleShot(20, this, [=](){
+
+
+            setInputMode(type, url);
+
+            connect(camWorker, &CamWorker::openCamSuccess, dialog, [=](){
+                //dialog->close();
+                dialog->deleteLater();
+                dialog = nullptr;
+                qDebug() << "执行";
+                showStreamInfo(type, streamType, url, p);
+
+            });
+
+
+        });
+
+
+    }
 
 }
 
@@ -57,6 +160,13 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         releaseThread();
         workT = new QThread(this);
         rtspWorker = new InputFromRTSP(nullptr, rtspURL);
+
+
+
+
+
+
+
         rtspWorker->moveToThread(workT);
         connect(workT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
         connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
@@ -69,6 +179,19 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
     }
 }
 
+
+
+
+void InputManager::dialogSuccessProcess()
+{
+
+}
+
+void InputManager::dialogFailProcess()
+{
+    emit processFail();
+}
+
 void InputManager::releaseThread()
 {
     if (workT && workT->isRunning()) {
@@ -76,6 +199,7 @@ void InputManager::releaseThread()
         workT->requestInterruption();
         workT->quit();
         if (workT->wait(2000)) {
+
             qDebug() << "输入流线程已经释放";
         } else {
             qDebug() << "输入流线程，没有正常结束，切换输入流失败";

@@ -16,6 +16,8 @@ class MPPWorker;
 class RGAWorker;
 class YOLOWorker;
 class InputFromRTSP;
+class StreamInfo;
+class Dialog;
 #include <opencv2/opencv.hpp>
 extern "C" {
 
@@ -59,7 +61,9 @@ public:
     Worker *worker;
     ~Widget();
 signals:
-    void selectInputStream(InputStreamType type, QString url);
+
+
+    void selectInputStream(InputStreamType type, QString streamType, QString addr, QWidget *p);
 public slots:
 
     void localDisplay(char * displayFramePtr, int width, int height);
@@ -70,7 +74,7 @@ private slots:
 
     void on_btn_start_cam_clicked();
 
-    void on_pushButton_clicked();
+    void on_btn_remote_conn_clicked();
 
 private:
     Ui::Widget *ui;
@@ -90,6 +94,8 @@ private:
     QDateTime date;
     char osd[128];
     uchar* encFrame;
+    QWidget *streamInfo;
+
 
 
 };

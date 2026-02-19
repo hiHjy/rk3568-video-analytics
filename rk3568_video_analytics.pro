@@ -11,27 +11,33 @@ QMAKE_LFLAGS   += -g
 
 SOURCES += \
     camworker.cpp \
+    dialog.cpp \
     inputfromrtsp.cpp \
    inputmanager.cpp \
     main.cpp \
     mppworker.cpp \
     postprocess.cpp \
     rgaworker.cpp \
+    streaminfo.cpp \
     widget.cpp \
     yoloworker.cpp
 
 HEADERS += \
     camworker.h \
+    dialog.h \
     inputfromrtsp.h \
     inputmanager.h \
     mppworker.h \
     postprocess.h \
     rgaworker.h \
+    streaminfo.h \
     type.h \
     widget.h \
     yoloworker.h
 
 FORMS += \
+    dialog.ui \
+    streaminfo.ui \
     widget.ui
 
 # ========================================================

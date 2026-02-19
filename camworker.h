@@ -41,6 +41,7 @@ public:
     ~CamWorker();
 signals:
     void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type);
+    void openCamSuccess();
 public slots:
     void camRun();
     void camStartCapture();
@@ -51,6 +52,7 @@ private:
     int v4l2_fd = -1;
     int width = -1;
     int height = -1;
+    bool isFirst = true;
 
     void camInit();
     int camInitBuffer();

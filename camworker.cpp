@@ -13,6 +13,7 @@ CamWorker::CamWorker(QObject *parent) : QObject(parent)
     camInitBuffer();
     //camRun();
     //qDebug() << QString::number(V4L2_PIX_FMT_YUYV, 16);
+
 }
 
 void CamWorker::camRun()
@@ -72,6 +73,11 @@ void CamWorker::camRun()
             }
 
 
+        }
+
+        if (isFirst) {
+            isFirst = false;
+            emit openCamSuccess();
         }
 
         //        qDebug() << "获取1帧数据（前五个字节）：" << buf_infos[buf.index].start[0]
@@ -375,8 +381,8 @@ int CamWorker::getWidth() const
 CamWorker::~CamWorker()
 {
 
-    camStopCapture();
-    QThread::msleep(50);
+
+
     for (int i = 0; i < FRAMEBUFFER_COUNT; ++i) {
         munmap(buf_infos[i].start, buf_infos[i].length);
     }

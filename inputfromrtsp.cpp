@@ -11,8 +11,11 @@ void print_error(const char *msg, int err)
 
 //逻辑可能有问题
 int InputFromRTSP::interrupt_cb(void *opaque) {
-    InputFromRTSP *self = static_cast<InputFromRTSP*>(opaque);
 
+    InputFromRTSP *self = static_cast<InputFromRTSP*>(opaque);
+    static uint64_t n = 0;
+
+    //qDebug() << ++n;
 
     return self->stop_flag.load() ? 1 : 0;  // 1=中断阻塞
 }
@@ -179,6 +182,7 @@ void InputFromRTSP::decodeH264ToNV12()
 {
     int ret = -1;
     //int n = 0;
+
     while (true ) {
 
         while ((ret = av_read_frame(fmt_ctx, pkt)) >= 0 && !QThread::currentThread()->isInterruptionRequested()) {
@@ -222,8 +226,13 @@ void InputFromRTSP::decodeH264ToNV12()
 
                     int w = frame->width;
                     int h = frame->height;
-                    nv12_contig.resize(w * h * 3 / 2);
 
+                    if (isFirst) {
+                        isFirst = false;
+                        nv12_contig.resize(w * h * 3 / 2);
+                        emit connectSuccess();
+
+                    }
                     // 4) 拷贝 Y：每行拷 w 字节（去掉 stride padding）
                     for (int y = 0; y < h; ++y) {
                         memcpy(nv12_contig.data() + y * w,
@@ -240,11 +249,21 @@ void InputFromRTSP::decodeH264ToNV12()
                     }
 
                     // 6) 让 yuvFrame 指向这块“完整连续 NV12”
-                    yuvFrame = nv12_contig.data();
+
+
 
                     //yuvFrame = (uchar*)frame->data[0];
+                    if (queue.size() == 3) {
+                        queue.pop();
+                        queue.push(nv12_contig);
+                    } else {
+                        queue.push(nv12_contig);
 
-                    emit yuvFrameReady(yuvFrame, 640, 480, InputStreamType::RTSP);
+                    }
+                    if (!queue.empty()) {
+                        emit yuvFrameReady(queue.front().data(), 640, 480, InputStreamType::RTSP);
+
+                    }
 
                     //程序到这里成功获取了一帧yuv420数据
                     //printf("get frame:%dx%d pix_fmt=%d n=%d\n", frame->width, frame->height, frame->format, ++n);

@@ -13,6 +13,8 @@ extern "C" {
 
 
 }
+#include <queue>
+#include <vector>
 class InputFromRTSP : public QObject
 {
     Q_OBJECT
@@ -22,6 +24,7 @@ public:
     static int interrupt_cb(void *opaque);
 signals:
     void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type);
+    void connectSuccess();
 public slots:
     void decodeH264ToNV12();
 
@@ -36,6 +39,9 @@ private:
      int video_index = -1;
      std::atomic<bool> stop_flag{false};
      std::vector<uint8_t> nv12_contig;
+     bool isFirst = true;
+     std::queue<std::vector<uint8_t>> queue;
+
 
 
 };

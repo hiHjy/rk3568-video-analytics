@@ -11,14 +11,20 @@ Dialog::Dialog(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
 }
 
+void Dialog::setText(QString msg)
+{
+    ui->label->setText(msg);
+    ui->btn_back->show();
+}
+
 Dialog::~Dialog()
 {
     delete ui;
 }
 
-void Dialog::failProcess()
+void Dialog::failProcess(QString msg)
 {
-    ui->label->text() = "出现错误";
+    ui->label->text() = msg;
     ui->btn_back->show();
 
 }
@@ -26,5 +32,6 @@ void Dialog::failProcess()
 void Dialog::on_btn_back_clicked()
 {
     this->deleteLater();
+    emit requestClear();
 }
 

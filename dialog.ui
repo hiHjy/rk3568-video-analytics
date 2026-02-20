@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>283</width>
-    <height>231</height>
+    <width>483</width>
+    <height>282</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,18 +48,18 @@ QPushButton:hover {
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>10</x>
      <y>10</y>
-     <width>181</width>
-     <height>161</height>
+     <width>461</width>
+     <height>261</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+    <item alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="label">
       <property name="font">
        <font>
-        <pointsize>18</pointsize>
+        <pointsize>14</pointsize>
        </font>
       </property>
       <property name="styleSheet">
@@ -70,7 +70,7 @@ QPushButton:hover {
       </property>
      </widget>
     </item>
-    <item>
+    <item alignment="Qt::AlignHCenter">
      <widget class="QPushButton" name="btn_back">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

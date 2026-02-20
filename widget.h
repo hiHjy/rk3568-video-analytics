@@ -84,7 +84,7 @@ private:
     InputFromRTSP *rtspWorker;
     static Widget *self;
     QButtonGroup *btnG;
-    QThread *camT;
+
     QThread *rgaT;
     QThread *mppT;
     QThread *yoloT;

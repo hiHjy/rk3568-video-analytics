@@ -27,7 +27,7 @@ void InputManager::disconn()
 }
 
 
-//清理有问题
+
 void InputManager::showStreamInfo(InputStreamType type, QString streamType, QString url, QWidget *p)
 {
 
@@ -70,7 +70,7 @@ void InputManager::showStreamInfo(InputStreamType type, QString streamType, QStr
 
 void InputManager::setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p)
 {
-    dialog = new Dialog(p);
+    dialog = new Dialog();
 
     //先画对话框
     dialog->show();
@@ -84,14 +84,47 @@ void InputManager::setInputStream(InputStreamType type, QString streamType, QStr
 
             setInputMode(type, url);
 
-            connect(rtspWorker, &InputFromRTSP::connectSuccess, dialog, [=](){
+            connect(rtspWorker, &InputFromRTSP::connectSuccess, this, [=](){
                 //dialog->close();
+
                 dialog->deleteLater();
                 dialog = nullptr;
                 qDebug() << "执行";
                 showStreamInfo(type, streamType, url, p);
 
             });
+
+            connect(rtspWorker, &InputFromRTSP::reqInitDialog, this, [this](QString msg){
+                if (!dialog) {
+                    dialog = new Dialog();
+                }
+
+                dialog->setText(msg);
+                dialog->show();
+
+
+            });
+
+            connect(rtspWorker, &InputFromRTSP::reqConnDialog, this, [this](QString msg){
+                if (!dialog) {
+                    dialog = new Dialog();
+                }
+                dialog->setText(msg);
+                dialog->show();
+                qDebug() << "adslfj;ladsf;adsfl;adsf";
+
+            });
+            connect(dialog, &Dialog::requestClear, this, [this] {
+                if (streamInfo) {
+                    streamInfo->hide();
+                }
+                releaseThread();
+                emit requestClear();
+
+            });
+            connect(dialog, &QObject::destroyed, this, [this](){dialog = nullptr;});
+
+
 
 
         });
@@ -146,7 +179,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         connect(workT, &QThread::finished, camWorker, &QObject::deleteLater);
 
         connect(camWorker, &CamWorker::yuvFrameReady,RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
-        connect(camWorker,  &QObject::destroyed, this, [=](){ camWorker  = nullptr; });
+        connect(camWorker,  &QObject::destroyed, this, [this](){ camWorker  = nullptr; });
 
         workT->start();
         qDebug() << "当前使用输入流：本地摄像头";
@@ -173,7 +206,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         connect(workT, &QThread::started, rtspWorker, &InputFromRTSP::decodeH264ToNV12);
         connect(rtspWorker, &InputFromRTSP::yuvFrameReady, RGA, &RGAWorker::frameCvtColor, Qt::QueuedConnection);
         connect(workT, &QThread::finished, rtspWorker, &QObject::deleteLater);
-        connect(rtspWorker, &QObject::destroyed, this, [=](){ rtspWorker = nullptr; });
+        connect(rtspWorker, &QObject::destroyed, this, [this](){ rtspWorker = nullptr; });
 
         workT->start();
         qDebug() << "当前使用输入流：rtsp";

@@ -13,9 +13,14 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(QWidget *parent = nullptr);
+    void setText(QString msg);
+
     ~Dialog();
+signals:
+    void requestClear();
+
 public slots:
-    void failProcess();
+    void failProcess(QString msg);
 private slots:
     void on_btn_back_clicked();
 

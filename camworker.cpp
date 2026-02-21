@@ -64,7 +64,10 @@ void CamWorker::camRun()
             memcpy(tmpBuf, buf_infos[buf.index].start, n);
 
             //qDebug() << "emit yuvFrameReady in thread" << QThread::currentThread();
-            emit yuvFrameReady(tmpBuf, width, height, InputStreamType::LOCAL);
+            if (!QThread::currentThread()->isInterruptionRequested()) {
+                 emit yuvFrameReady(tmpBuf, width, height, InputStreamType::LOCAL, inputNum);
+            }
+
 
             //获取到一帧数据
             if(ioctl(v4l2_fd, VIDIOC_QBUF, &buf) < 0) {
@@ -360,6 +363,11 @@ void CamWorker::camStopCapture()
     }
     qDebug() << "停止采集";
 
+}
+
+void CamWorker::setInputNum(uint64_t newInputNum)
+{
+    inputNum = newInputNum;
 }
 
 int CamWorker::getHeight() const

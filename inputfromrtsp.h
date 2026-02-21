@@ -33,9 +33,9 @@ public:
 
     ~InputFromRTSP();
     static int interrupt_cb(void *opaque);
-
+    void setInputNum(uint64_t inputNum);
 signals:
-    void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type);
+    void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type, uint64_t inputNum);
     void connectSuccess();
     void reInitRTSP();
     void reqInitDialog(QString msg);
@@ -62,7 +62,8 @@ private:
     std::queue<std::vector<uint8_t>> queue;
     void initRTSP(QString url);
     QTimer *timer = nullptr;
-    Dialog *dialog;
+    Dialog *dialog = nullptr;
+    uint64_t inputNum = 0;
 
 
 

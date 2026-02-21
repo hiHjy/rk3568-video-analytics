@@ -39,8 +39,10 @@ public:
 
     int getHeight() const;
     ~CamWorker();
+    void setInputNum(uint64_t newInputNum);
+
 signals:
-    void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type);
+    void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type, uint64_t inputNum);
     void openCamSuccess();
 public slots:
     void camRun();
@@ -53,7 +55,7 @@ private:
     int width = -1;
     int height = -1;
     bool isFirst = true;
-
+    uint64_t inputNum = 0;
     void camInit();
     int camInitBuffer();
 

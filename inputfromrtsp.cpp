@@ -32,6 +32,11 @@ int InputFromRTSP::interrupt_cb(void *opaque) {
     return self->stop_flag.load() ? 1 : 0;  // 1=中断阻塞
 }
 
+void InputFromRTSP::setInputNum(uint64_t inputNum)
+{
+    this->inputNum = inputNum;
+}
+
 
 InputFromRTSP::InputFromRTSP(QObject *parent, QString url) : QObject(parent), url(url)
 {
@@ -213,8 +218,8 @@ void InputFromRTSP::decodeH264ToNV12()
                     queue.push(nv12_contig);
 
                 }
-                if (!queue.empty()) {
-                    emit yuvFrameReady(queue.front().data(), 640, 480, InputStreamType::RTSP);
+                if (!queue.empty() && !QThread::currentThread()->isInterruptionRequested()) {
+                    emit yuvFrameReady(queue.front().data(), 640, 480, InputStreamType::RTSP, inputNum);
 
                 }
 

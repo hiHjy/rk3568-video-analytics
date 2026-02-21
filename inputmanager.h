@@ -29,8 +29,8 @@ signals:
 public slots:
      void disconn();
 
-     void setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p);
-     void setInputMode(InputStreamType inputType, QString rtspURL = "");
+     void setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p, uint64_t inputNum);
+     void setInputMode(InputStreamType inputType, QString rtspURL = "", uint64_t inputNum = 0);
      void dialogSuccessProcess();
      void dialogFailProcess();
 
@@ -48,6 +48,7 @@ private:
     Dialog *dialog = nullptr;
     StreamInfo *streamInfo = nullptr;
     void releaseThread();
+
     void showStreamInfo(InputStreamType type, QString streamType, QString url, QWidget *p);
 private slots:
 

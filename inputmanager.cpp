@@ -68,7 +68,7 @@ void InputManager::showStreamInfo(InputStreamType type, QString streamType, QStr
 
 }
 
-void InputManager::setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p)
+void InputManager::setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p, uint64_t inputNum)
 {
     dialog = new Dialog();
 
@@ -82,7 +82,7 @@ void InputManager::setInputStream(InputStreamType type, QString streamType, QStr
         QTimer::singleShot(20, this, [=](){
 
 
-            setInputMode(type, url);
+            setInputMode(type, url, inputNum);
 
             connect(rtspWorker, &InputFromRTSP::connectSuccess, this, [=](){
                 //dialog->close();
@@ -137,7 +137,7 @@ void InputManager::setInputStream(InputStreamType type, QString streamType, QStr
         QTimer::singleShot(20, this, [=](){
 
 
-            setInputMode(type, url);
+            setInputMode(type, url, inputNum);
 
             connect(camWorker, &CamWorker::openCamSuccess, dialog, [=](){
                 //dialog->close();
@@ -160,7 +160,7 @@ void InputManager::setInputStream(InputStreamType type, QString streamType, QStr
     切换输入流的模式
 
 */
-void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
+void InputManager::setInputMode(InputStreamType inputType, QString rtspURL, uint64_t inputNum)
 {
 
     switch (inputType) {
@@ -172,7 +172,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         workT = new QThread(this);
 
         camWorker = new CamWorker();
-
+        camWorker->setInputNum(inputNum);
         camWorker->moveToThread(workT);
 
         connect(workT, &QThread::started, camWorker, &CamWorker::camRun);
@@ -196,7 +196,7 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL)
         workT = new QThread(this);
         rtspWorker = new InputFromRTSP(nullptr, rtspURL);
 
-
+        rtspWorker->setInputNum(inputNum);
 
 
 

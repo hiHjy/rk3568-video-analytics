@@ -34,6 +34,7 @@
 #include <streaminfo.h>
 #include <QDialog>
 #include "dialog.h"
+#include <QTimer>
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -124,16 +125,6 @@ Widget::Widget(QWidget *parent)
 
 Widget::~Widget()
 {
-    //    if (camT && camT->isRunning()) {
-
-    //        camT->requestInterruption();
-    //        camT->quit();
-    //        if (camT->wait(3000)) {
-    //            qDebug() << "采集线程正常结束";
-    //        } else {
-    //            qDebug() << "采集线程还在运行，没有正常结束";
-    //        }
-    //    }
 
     if (rgaT && rgaT->isRunning()) {
 
@@ -170,189 +161,30 @@ Widget::~Widget()
     delete ui;
 }
 
-void Widget::localDisplay(char *displayFramePtr, int width, int height)
-{
 
+//todo 切换输入源残影待解决
+
+void Widget::localDisplay(char *displayFramePtr, int width, int height, uint64_t inputNum)
+{
+    static int n = 0;
     if (!enableDisplay) {
+        qDebug() << "残余的帧 flag:" << ++n;
         return;
     }
+
+    if (inputNum != this->inputNum) {
+        qDebug() << "inputNum fliter:" << ++n;
+        return;
+    }
+
+
+
     QImage img((uchar*)displayFramePtr, width, height, QImage::Format_RGB888);
     ui->lb_img->setPixmap(QPixmap::fromImage(img));
 
-
-
 }
 
 
-Worker::Worker(QObject *parent) :QThread(parent)
-{
-
-}
-
-Worker::~Worker()
-{
-
-}
-#if 0 //Not using RGA hardware acceleration
-void Worker::run()
-{
-    qDebug() << "worker start";
-    avdevice_register_all();
-
-    AVDictionary *opt = nullptr;
-    AVFormatContext *in_ctx = avformat_alloc_context();
-    /**以下平台不同可能需要修改 */
-    av_dict_set(&opt, "framerate", "30", 0);
-    av_dict_set(&opt, "video_size", "640x480", 0);
-    av_dict_set(&opt, "pixel_format", "yuyv422", 0);
-    int ret = avformat_open_input(&in_ctx, "/dev/video10", av_find_input_format("v4l2"), &opt);
-    av_dict_free(&opt);
-    if (ret < 0) { print_error("avformat_open_input", ret); return; }
-
-    ret = avformat_find_stream_info(in_ctx, nullptr);
-    if (ret < 0) { print_error("avformat_find_stream_info", ret); return; }
-
-    int video_index = -1;
-    for (unsigned i = 0; i < in_ctx->nb_streams; ++i) {
-        if (in_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            video_index = (int)i;
-            break;
-        }
-    }
-    AVCodecParameters *in_par = in_ctx->streams[video_index]->codecpar;
-    printf("size:%d*%d format:%s\n", in_par->width, in_par->height, av_get_pix_fmt_name((AVPixelFormat)in_par->format));
-
-    SwsContext *yuyv2rgb = sws_getContext(in_par->width, in_par->height, (AVPixelFormat)in_par->format,in_par->width, in_par->height, AV_PIX_FMT_RGB24,
-                                          SWS_BILINEAR, nullptr, nullptr, nullptr);
-
-
-
-    if (video_index < 0) { std::cerr << "no video stream\n"; return; }
-    AVFrame *frame = av_frame_alloc ();
-    AVPacket *pkt = av_packet_alloc();
-    QImage img(640, 480, QImage::Format_RGB888);
-    uint8_t *data[4] = {img.bits(), nullptr, nullptr, nullptr};
-    int linesize[4] = {img.bytesPerLine(), 0, 0, 0};
-    if (!frame || !pkt) {
-        qDebug() << "av_frame_alloc or av_packet_alloc";
-        //imresize();
-    }
-    while (true) {
-        int ret = av_read_frame(in_ctx, pkt);
-        if (ret == AVERROR(EAGAIN)) {
-            usleep(5000);
-            continue;
-        }
-        frame->format = in_par->format;
-        frame->width = in_par->width;
-        frame->height = in_par->height;
-        frame->data[0] = pkt->data;
-        frame->linesize[0] = in_par->width *2;
-        ret = sws_scale(yuyv2rgb, frame->data, frame->linesize, 0, in_par->height, data, linesize);
-        if (ret <= 0) {
-            std::cerr << "sws_scale error" << std::endl;
-            return ;
-        }
-        Widget::getInstance()->ui->label->setPixmap(QPixmap::fromImage(img));
-        av_packet_unref(pkt);
-
-
-    }
-
-
-}
-#endif
-
-#if 1 // using RGA hardware acceleration
-void Worker::run()
-{
-    qDebug() << "worker start";
-    //    avdevice_register_all();
-
-
-
-    //    AVDictionary *opt = nullptr;
-    //    AVFormatContext *in_ctx = avformat_alloc_context();
-
-    //    /**以下平台不同可能需要修改 */
-    //    av_dict_set(&opt, "framerate", "30", 0);
-    //    av_dict_set(&opt, "video_size", "640x480", 0);
-    //    av_dict_set(&opt, "pixel_format", "yuyv422", 0);
-    //    int ret = avformat_open_input(&in_ctx, "/dev/video10", av_find_input_format("v4l2"), &opt);
-    //    av_dict_free(&opt);
-    //    if (ret < 0) { print_error("avformat_open_input", ret); return; }
-
-    //    ret = avformat_find_stream_info(in_ctx, nullptr);
-    //    if (ret < 0) { print_error("avformat_find_stream_info", ret); return; }
-
-    //    int video_index = -1;
-    //    for (unsigned i = 0; i < in_ctx->nb_streams; ++i) {
-    //        if (in_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-    //            video_index = (int)i;
-    //            break;
-    //        }
-    //    }
-    //    AVCodecParameters *in_par = in_ctx->streams[video_index]->codecpar;
-    //    printf("size:%d*%d format:%s\n", in_par->width, in_par->height, av_get_pix_fmt_name((AVPixelFormat)in_par->format));
-
-
-    //    /*
-    //    IM_STATUS imcvtcolor(rga_buffer_t src,
-    //    rga_buffer_t dst,
-    //    int sfmt,
-    //    int dfmt,
-    //    int mode = IM_COLOR_SPACE_DEFAULT,
-    //    int sync = 1)
-
-    //    */
-
-
-
-
-
-    //    if (video_index < 0) { std::cerr << "no video stream\n"; return; }
-    //    AVFrame *frame = av_frame_alloc ();
-    //    AVPacket *pkt = av_packet_alloc();
-    //    QImage img(640, 480, QImage::Format_RGB888);
-
-    //    if (!frame || !pkt) {
-    //        qDebug() << "av_frame_alloc or av_packet_alloc";
-    //        //imresize();
-    //    }
-
-
-
-
-    //    while (true) {
-
-    //        int ret = av_read_frame(in_ctx, pkt);
-    //        if (ret == AVERROR(EAGAIN)) {
-    //            usleep(5000);
-    //            continue;
-    //        }
-    //        /*
-    //            第五个参数是,每一行多少像素,包括内存对齐
-
-    //        */
-    //        rga_buffer_t src = wrapbuffer_virtualaddr((void*)pkt->data, in_par->width, in_par->height, RK_FORMAT_YUYV_422, in_par->width, in_par->height);
-    //        rga_buffer_t dst = wrapbuffer_virtualaddr((void*)img.bits(), img.width(), img.height(), RK_FORMAT_RGB_888, img.bytesPerLine()/3, img.height());
-
-
-    //        ret = imcvtcolor(src, dst, RK_FORMAT_YUYV_422, RK_FORMAT_RGB_888);
-    //        if (ret !=  IM_STATUS_SUCCESS) {
-    //            qDebug() << "imcvtcolor" ;
-    //            return;
-    //        }
-
-    //        Widget::getInstance()->ui->label->setPixmap(QPixmap::fromImage(img));
-    //        av_packet_unref(pkt);
-
-
-    //    }
-
-
-}
-#endif
 
 void Widget::on_btn_local_clicked()
 {
@@ -373,8 +205,14 @@ void Widget::on_btn_remote_clicked()
 
 void Widget::on_btn_start_cam_clicked()
 {
+
+    /*
+    enableDisplay = true;*/
+    emit selectInputStream(InputStreamType::LOCAL, "本地", "", ui->widget_input_select , ++inputNum);
+
+
+
     enableDisplay = true;
-    emit selectInputStream(InputStreamType::LOCAL, "本地", "", ui->widget_input_select);
 
 }
 
@@ -383,7 +221,7 @@ void Widget::on_btn_start_cam_clicked()
 void Widget::on_btn_remote_conn_clicked()
 {
 
-    enableDisplay = true;
+
     QString protocol = ui->comboBox->currentText();
     QString url = "";
 
@@ -393,10 +231,11 @@ void Widget::on_btn_remote_conn_clicked()
         qDebug() << "url:" << url;
 
 
+
         //emit selectInputStream(InputStreamType::RTSP, url);
         //QThread::msleep(20);
 
-        emit selectInputStream(InputStreamType::RTSP, "远程", url, ui->widget_input_select);
+        emit selectInputStream(InputStreamType::RTSP, "远程", url, ui->widget_input_select, ++inputNum);
 
 
     } else if (protocol == "RTMP") {
@@ -405,6 +244,8 @@ void Widget::on_btn_remote_conn_clicked()
     }
 
 
+
+    enableDisplay = true;
 
 
 

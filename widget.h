@@ -19,6 +19,7 @@ class InputFromRTSP;
 class StreamInfo;
 class Dialog;
 #include <opencv2/opencv.hpp>
+#include <atomic>
 extern "C" {
 
 #include <libavformat/avformat.h>
@@ -37,36 +38,24 @@ namespace Ui { class Widget; }
 QT_END_NAMESPACE
 
 
-class Worker :public QThread
-{
-    Q_OBJECT
-public:
-    Worker(QObject *parent = nullptr);
-    ~Worker();
-    void run() override;
-    static void print_error(const char *msg, int err);
 
-
-};
 
 class Widget : public QWidget
 {
     Q_OBJECT
 
 public:
-    friend Worker;
     static Widget* getInstance();
     Widget(QWidget *parent = nullptr);
 
-    Worker *worker;
     ~Widget();
 signals:
 
 
-    void selectInputStream(InputStreamType type, QString streamType, QString addr, QWidget *p);
+    void selectInputStream(InputStreamType type, QString streamType, QString addr, QWidget *p, uint64_t inputNum);
 public slots:
 
-    void localDisplay(char * displayFramePtr, int width, int height);
+    void localDisplay(char * displayFramePtr, int width, int height, uint64_t inputNum);
 private slots:
     void on_btn_local_clicked();
 
@@ -96,6 +85,8 @@ private:
     uchar* encFrame;
     QWidget *streamInfo;
     bool enableDisplay = true;
+    uint64_t inputNum = 0;
+
 
 
 

@@ -12,7 +12,7 @@ RGAWorker::RGAWorker(QObject *parent) : QObject(parent)
 
 }
 
-void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height, InputStreamType type)
+void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height, InputStreamType type, uint64_t inputNum)
 {
 
     int ret = -1;
@@ -26,6 +26,7 @@ void RGAWorker::frameCvtColor(uchar* frame, uint32_t width, uint32_t height, Inp
         }
     }
 
+    this->inputNum = inputNum;
 
     /***************** rga硬件加速****************************8 */
     switch (type) {
@@ -157,7 +158,7 @@ void RGAWorker::finalStep(detect_result_group_t* out)
 
 
     //显示的帧准备就绪 送去本地qt显示
-    emit displayFrameReady(yoloFrame, 640, 480);
+    emit displayFrameReady(yoloFrame, 640, 480, inputNum);
 
 
 

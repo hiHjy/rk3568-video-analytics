@@ -8,7 +8,7 @@
 InputManager::InputManager(QObject *parent, InputStreamType type, QString url, RGAWorker *RGA) :
     QObject(parent), type(type), url(url), RGA(RGA)
 {
-    //    lastType = type;
+        lastType = type;
 
     //    setInputMode(type, url);
 
@@ -77,7 +77,7 @@ void InputManager::setInputStream(InputStreamType type, QString streamType, QStr
 
     if (type == InputStreamType::RTSP) {
 
-
+        lastType = type;
         //20ms后执行
         QTimer::singleShot(20, this, [=](){
 
@@ -217,23 +217,19 @@ void InputManager::setInputMode(InputStreamType inputType, QString rtspURL, uint
 
 
 
-void InputManager::dialogSuccessProcess()
-{
 
-}
 
-void InputManager::dialogFailProcess()
-{
-    emit processFail();
-}
+
 
 void InputManager::releaseThread()
 {
     if (workT && workT->isRunning()) {
-
+        if (lastType == InputStreamType::RTSP && rtspWorker) {
+            rtspWorker->setStop_flag(true);
+        }
         workT->requestInterruption();
         workT->quit();
-        if (workT->wait(2000)) {
+        if (workT->wait(5000)) {
 
             qDebug() << "输入流线程已经释放";
         } else {

@@ -22,7 +22,7 @@ public:
     ~InputManager();
 signals:
     void inputStreamModeChanged();
-    void processFail();
+
     void displayStreamInfoReady(QString streamTypem, QString url);
     void requestClear();
 
@@ -31,8 +31,7 @@ public slots:
 
      void setInputStream(InputStreamType type, QString streamType, QString url, QWidget *p, uint64_t inputNum);
      void setInputMode(InputStreamType inputType, QString rtspURL = "", uint64_t inputNum = 0);
-     void dialogSuccessProcess();
-     void dialogFailProcess();
+
 
 private:
 

@@ -153,6 +153,7 @@ unsigned char *YOLOWorker::load_model(const char *filename, int *model_size)
     FILE*          fp;
     unsigned char* data;
 
+
     // 以二进制只读模式打开模型文件
     fp = fopen(filename, "rb");
     if (NULL == fp) {

@@ -50,8 +50,10 @@ InputFromRTSP::InputFromRTSP(QObject *parent, QString url) : QObject(parent), ur
 
         if (isReady) {
             timer->stop();
-            timer->deleteLater();
-            timer = nullptr;
+
+
+
+
             decodeH264ToNV12();
         }
 
@@ -68,18 +70,9 @@ InputFromRTSP::~InputFromRTSP()
     stop_flag.store(true);
     if (timer) {
         timer->stop();
-        timer->deleteLater();
-        timer = nullptr;
-    }
-    if (fmt_ctx) {
-        avformat_close_input(&fmt_ctx); // 会释放内部结构，并把 fmt_ctx 置空
-    }
 
-    if (dec_ctx) {
-        avcodec_free_context(&dec_ctx);
     }
-    if (pkt) av_packet_free(&pkt);
-    if (frame) av_frame_free(&frame);
+    releaseFFmpeg();
     //    if (yuvFrame) {
 
     //        free(yuvFrame);
@@ -92,12 +85,12 @@ InputFromRTSP::~InputFromRTSP()
 void InputFromRTSP::decodeH264ToNV12()
 {
     int ret = -1;
-
+    qDebug() << "isReady" << isReady;
     //int n = 0;
     if (!isReady) {
         qDebug() << "[ERR] InputFromRTSP Init Error";
         if (!timer) {
-            timer = new QTimer();
+            timer = new QTimer(this);
 
         }
 
@@ -128,7 +121,7 @@ void InputFromRTSP::decodeH264ToNV12()
             qDebug() << "jjjjjj";
             emit reqConnDialog("连接中断,正在重新连接...");
             if (!timer) {
-                timer = new QTimer();
+                timer = new QTimer(this);
 
             }
             timer->start(3000);
@@ -242,7 +235,7 @@ void InputFromRTSP::decodeH264ToNV12()
 
 
 
-
+    qDebug() << "退出循环";
 
 
 
@@ -250,12 +243,22 @@ void InputFromRTSP::decodeH264ToNV12()
 
 }
 
+void InputFromRTSP::setStop_flag(const std::atomic<bool> &newStop_flag)
+{
+    stop_flag = newStop_flag.load();
+}
+
 void InputFromRTSP::initRTSP(QString url)
 {
 
 
 
-    if (!isReady) isReady = true;
+    if (!isReady) {
+
+        releaseFFmpeg();
+        isReady = true;
+    }
+
     if (!isFirst) isFirst = true;
     avformat_network_init();
     //yuvFrame = (uchar *)malloc(640 * 480 * 3 /2);
@@ -277,9 +280,9 @@ void InputFromRTSP::initRTSP(QString url)
 
     AVDictionary *opts = NULL;
     av_dict_set(&opts, "rtsp_transport", "tcp", 0);
-    av_dict_set(&opts, "stimeout", "5000000", 0); // 5秒，单位微秒
-    av_dict_set(&opts, "rw_timeout", "5000000", 0);  // 5s，读写超时
-    av_dict_set(&opts, "timeout", "5000000", 0);
+//    av_dict_set(&opts, "stimeout", "5000000", 0); // 5秒，单位微秒
+//    av_dict_set(&opts, "rw_timeout", "5000000", 0);  // 5s，读写超时
+    av_dict_set(&opts, "timeout", "4000000", 0);
     fmt_ctx = avformat_alloc_context();
 
     //加下面两行代码，当无数据时会调用interrupt_cb函数，检查返回值，如果返回0那么会阻塞等待，如果返回1，则中断阻塞，ffmpeg底层用的poll
@@ -419,6 +422,21 @@ void InputFromRTSP::initRTSP(QString url)
 
     qDebug() << "[rtsp pull] --h264_rkmpp-- 解码器初始化完成";
 
+
+}
+
+void InputFromRTSP::releaseFFmpeg()
+{
+
+    if (fmt_ctx) {
+        avformat_close_input(&fmt_ctx); // 会释放内部结构，并把 fmt_ctx 置空
+    }
+
+    if (dec_ctx) {
+        avcodec_free_context(&dec_ctx);
+    }
+    if (pkt) av_packet_free(&pkt);
+    if (frame) av_frame_free(&frame);
 
 }
 

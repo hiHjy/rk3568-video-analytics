@@ -34,6 +34,8 @@ public:
     ~InputFromRTSP();
     static int interrupt_cb(void *opaque);
     void setInputNum(uint64_t inputNum);
+    void setStop_flag(const std::atomic<bool> &newStop_flag);
+
 signals:
     void yuvFrameReady(uchar *frame, uint width, uint height, InputStreamType type, uint64_t inputNum);
     void connectSuccess();
@@ -61,6 +63,7 @@ private:
     QString url = "";
     std::queue<std::vector<uint8_t>> queue;
     void initRTSP(QString url);
+    void releaseFFmpeg();
     QTimer *timer = nullptr;
     Dialog *dialog = nullptr;
     uint64_t inputNum = 0;

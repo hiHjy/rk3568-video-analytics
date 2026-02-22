@@ -132,7 +132,7 @@ QComboBox QComboBoxListView::item:selected {
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>240</y>
+     <y>210</y>
      <width>1271</width>
      <height>482</height>
     </rect>

@@ -34,7 +34,8 @@ private:
     AVFormatContext *rtsp_ctx;
     AVStream *rtsp_stream;
     void print_error(const char *msg, int err);
-
+    void releaseFFmpeg();
+    void initCoder();
     ~MPPWorker();
 };
 

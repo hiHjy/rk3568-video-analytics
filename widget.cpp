@@ -54,8 +54,12 @@ Widget::Widget(QWidget *parent)
 
     ui->setupUi(this);
 
-    QListView * listView = new QListView(ui->comboBox);;
+    QListView * listView = new QListView(ui->comboBox);
     ui->comboBox->setView(listView);
+
+    QListView * listView1 = new QListView(ui->comboBox_2);
+    ui->comboBox_2->setView(listView1);
+
 
     ui->btn_local->clicked(true);
 
@@ -166,14 +170,14 @@ Widget::~Widget()
 
 void Widget::localDisplay(char *displayFramePtr, int width, int height, uint64_t inputNum)
 {
-    static int n = 0;
+    //static int n = 0;
     if (!enableDisplay) {
-        qDebug() << "残余的帧 flag:" << ++n;
+//        qDebug() << "残余的帧 flag:" << ++n;
         return;
     }
 
     if (inputNum != this->inputNum) {
-        qDebug() << "inputNum fliter:" << ++n;
+//        qDebug() << "inputNum fliter:" << ++n;
         return;
     }
 

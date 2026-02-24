@@ -644,6 +644,19 @@ QLineEdit{
             </item>
            </layout>
           </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </widget>
        </item>
@@ -679,7 +692,7 @@ QPushButton {
 </string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="4" column="1" colspan="2">
+          <item row="5" column="1" colspan="2">
            <widget class="QLineEdit" name="lineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -722,14 +735,14 @@ QPushButton {
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_17">
             <property name="text">
              <string>地址:</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="7" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <widget class="QPushButton" name="pushButton">
@@ -774,7 +787,7 @@ QPushButton {
             </item>
            </layout>
           </item>
-          <item row="3" column="1" colspan="2">
+          <item row="4" column="1" colspan="2">
            <widget class="QComboBox" name="comboBox_2">
             <property name="mouseTracking">
              <bool>true</bool>
@@ -794,29 +807,42 @@ QPushButton {
             </item>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>类型:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="6" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0">
            <widget class="QLabel" name="label_14">
             <property name="text">
              <string>推流状态:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="2" column="1">
            <widget class="QLabel" name="label_15">
             <property name="text">
              <string>已停止</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <spacer name="verticalSpacer">
+          <item row="1" column="0">
+           <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>

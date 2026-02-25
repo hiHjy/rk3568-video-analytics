@@ -582,7 +582,7 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_7">
+             <widget class="QLabel" name="lb_cpuUsage">
               <property name="text">
                <string>60%/400%</string>
               </property>
@@ -600,7 +600,7 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_9">
+             <widget class="QLabel" name="lb_npuUsage">
               <property name="text">
                <string>60%/100%</string>
               </property>
@@ -618,7 +618,7 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_11">
+             <widget class="QLabel" name="lb_memUsage">
               <property name="text">
                <string>3%/100%</string>
               </property>
@@ -636,7 +636,7 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_13">
+             <widget class="QLabel" name="lb_ip">
               <property name="text">
                <string>192.168.1.30</string>
               </property>

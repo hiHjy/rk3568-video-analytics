@@ -18,6 +18,7 @@ class YOLOWorker;
 class InputFromRTSP;
 class StreamInfo;
 class Dialog;
+class SysInfoQuery;
 #include <opencv2/opencv.hpp>
 #include <atomic>
 extern "C" {
@@ -64,7 +65,7 @@ private slots:
     void on_btn_start_cam_clicked();
 
     void on_btn_remote_conn_clicked();
-
+    void displaySysInfo(QString cpuUsage, QString memUsage, QString npuUsage, QString ip, bool ipv4GetSuccess);
 private:
     Ui::Widget *ui;
     QImage *img;
@@ -77,6 +78,7 @@ private:
     QThread *rgaT;
     QThread *mppT;
     QThread *yoloT;
+    QThread *sysInfoDisplayT;
     RGAWorker *RGA;
     MPPWorker *MPP;
     YOLOWorker *YOLO;
@@ -86,8 +88,9 @@ private:
     QWidget *streamInfo;
     bool enableDisplay = true;
     uint64_t inputNum = 0;
+    SysInfoQuery * sysInfo;
 
-
+    bool getIPSuccess = false;
 
 
 };

@@ -35,6 +35,7 @@
 #include <QDialog>
 #include "dialog.h"
 #include <QTimer>
+#include <sysinfoquery.h>
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -46,8 +47,6 @@ Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
-    qDebug() << "主线程:" << QThread::currentThread();
-
 
 
 
@@ -124,6 +123,14 @@ Widget::Widget(QWidget *parent)
 
     });
 
+    qDebug() << "主线程:" << QThread::currentThread();
+    sysInfo = new SysInfoQuery();
+    sysInfoDisplayT = new QThread(this);
+    sysInfo->moveToThread(sysInfoDisplayT);
+    connect(sysInfo, &SysInfoQuery::SysInfoReady, this, &Widget::displaySysInfo);
+    connect(sysInfoDisplayT, &QThread::started, sysInfo, &SysInfoQuery::tiemrStart);
+    connect(sysInfoDisplayT, &QThread::finished, sysInfo, &QObject::deleteLater);
+    sysInfoDisplayT->start();
 }
 
 
@@ -162,6 +169,17 @@ Widget::~Widget()
             qDebug() << "yolo线程还在运行，没有正常结束";
         }
     }
+
+    if (sysInfoDisplayT && sysInfoDisplayT ->isRunning()) {
+
+
+        sysInfoDisplayT ->quit();
+        if (sysInfoDisplayT ->wait(3000)) {
+            qDebug() << "sysInfoDisplayT 线程正常结束";
+        } else {
+            qDebug() << "sysInfoDisplayT ，没有正常结束";
+        }
+    }
     delete ui;
 }
 
@@ -172,12 +190,12 @@ void Widget::localDisplay(char *displayFramePtr, int width, int height, uint64_t
 {
     //static int n = 0;
     if (!enableDisplay) {
-//        qDebug() << "残余的帧 flag:" << ++n;
+        //        qDebug() << "残余的帧 flag:" << ++n;
         return;
     }
 
     if (inputNum != this->inputNum) {
-//        qDebug() << "inputNum fliter:" << ++n;
+        //        qDebug() << "inputNum fliter:" << ++n;
         return;
     }
 
@@ -248,11 +266,27 @@ void Widget::on_btn_remote_conn_clicked()
     }
 
 
-
     enableDisplay = true;
 
 
 
+
+}
+
+void Widget::displaySysInfo(QString cpuUsage, QString memUsage, QString npuUsage, QString ip, bool ipv4GetSuccess)
+{
+    ui->lb_cpuUsage->setText(cpuUsage + "%/400%");
+    ui->lb_memUsage->setText(memUsage + "%/100%");
+    ui->lb_npuUsage->setText(npuUsage + "%/100%");
+    if (ipv4GetSuccess) {
+
+
+        ui->lb_ip->setText(ip);
+
+
+    }  else{
+        ui->lb_ip->setText("未获取到有效IP");
+    }
 
 }
 

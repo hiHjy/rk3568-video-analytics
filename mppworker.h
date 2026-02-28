@@ -17,25 +17,35 @@ class MPPWorker : public QObject
 public:
     MPPWorker(int w = -1, int h = -1);
 
+    void setUrl(const QString &newUrl);
+
 signals:
+    void remotePushIsRuning(bool flag);
 public slots:
 
     void encode2H264(char *nv12Frame, int width, int height);
-
+    void pushReConfig();
 private:
     int width = 0;
     int height = 0;
+    bool rtspPushIsRuning = false;
+    bool rtspPushOn = false;
+
     uint64_t pts = 0;
-    void rtspInit();
+
     AVCodecContext *enc_ctx = nullptr;
 
     AVFrame *enc_frame = nullptr;
     AVPacket *enc_pkt = nullptr;
-    AVFormatContext *rtsp_ctx;
-    AVStream *rtsp_stream;
+    AVFormatContext *rtsp_ctx = nullptr;
+    AVStream *rtsp_stream = nullptr;
     void print_error(const char *msg, int err);
     void releaseFFmpeg();
     void initCoder();
+    void rtspInit();
+    bool rtspInitSuccess = true;
+
+    QString url = "";
     ~MPPWorker();
 };
 

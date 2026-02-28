@@ -52,7 +52,7 @@ public:
     ~Widget();
 signals:
 
-
+    void remotePushRequest();
     void selectInputStream(InputStreamType type, QString streamType, QString addr, QWidget *p, uint64_t inputNum);
 public slots:
 
@@ -66,6 +66,13 @@ private slots:
 
     void on_btn_remote_conn_clicked();
     void displaySysInfo(QString cpuUsage, QString memUsage, QString npuUsage, QString ip, bool ipv4GetSuccess);
+
+    void on_btn_remote_push_cfg_clicked();
+
+
+
+    void on_btn_remote_push_stop_clicked();
+
 private:
     Ui::Widget *ui;
     QImage *img;

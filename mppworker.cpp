@@ -7,8 +7,7 @@ MPPWorker::MPPWorker(int w, int h)
 
 {
     initCoder();
-    rtspInit();
-
+    //rtspInit();
 
 
 
@@ -18,6 +17,12 @@ MPPWorker::MPPWorker(int w, int h)
 void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
 {
 
+    if (!rtspInitSuccess) {
+
+        emit remotePushIsRuning(false);
+
+        return;
+    }
     int ret = -1;
     enc_frame->width = width;
     enc_frame->height = height;
@@ -38,7 +43,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
         return;
     }
 
-    while (true) {
+    while (true && rtspPushOn) {
 
         ret = avcodec_receive_packet(enc_ctx, enc_pkt);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
@@ -64,11 +69,20 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
         ret = av_interleaved_write_frame(rtsp_ctx, enc_pkt); //推流
         if (ret < 0) {
             print_error("av_interleaved_write_frame", ret);
-            releaseFFmpeg();
-            initCoder();
-            rtspInit();
 
+            if (rtspPushOn) {
+                releaseFFmpeg();
+                initCoder();
+                rtspInit();
+            }
+
+            emit remotePushIsRuning(false);
             return ;
+        }
+        if (!rtspPushIsRuning) {
+            rtspPushIsRuning = true;
+            emit remotePushIsRuning(true);
+
         }
 
         //打包了一个packet
@@ -94,8 +108,9 @@ void MPPWorker::rtspInit()
 {
     //** 创建rtsp输出上下文 */
     rtsp_ctx = nullptr;
-    avformat_alloc_output_context2(&rtsp_ctx ,nullptr, "rtsp", "rtsp://127.0.0.1:8554/live");
+    avformat_alloc_output_context2(&rtsp_ctx ,nullptr, "rtsp", url.toUtf8().toStdString().c_str());
     if (!rtsp_ctx) {
+        rtspInitSuccess = false;
         qDebug() << "[rtspInit]avformat_alloc_output_context2 failed";
         return;
     }
@@ -103,17 +118,20 @@ void MPPWorker::rtspInit()
     //给这个rtsp格式的文件创建一个新流
     rtsp_stream = avformat_new_stream(rtsp_ctx, nullptr);
     if (!rtsp_stream) {
+        rtspInitSuccess = false;
         qDebug() << "[rtspInit]avformat_new_stream failed";
         return ;
     }
 
     if (!enc_ctx) {
+        rtspInitSuccess = false;
         qDebug() << "[rtspInit]enc_ctx is null";
         return;
     }
 
     int ret = avcodec_parameters_from_context(rtsp_stream->codecpar, enc_ctx);
     if (ret < 0) {
+        rtspInitSuccess = false;
         print_error("avcodec_parameters_from_context", ret);
         return ;
     }
@@ -131,6 +149,7 @@ void MPPWorker::rtspInit()
     //将容器rtsp的头部信息（Header） 写入文件。
     ret = avformat_write_header(rtsp_ctx, &rtsp_opts);
     if (ret < 0) {
+        rtspInitSuccess = false;
         print_error("avformat_write_header", ret);
         return;
     }
@@ -147,13 +166,34 @@ void MPPWorker::print_error(const char *msg, int err)
 
 void MPPWorker::releaseFFmpeg()
 {
-    if (enc_pkt)
+    if (enc_pkt) {
         av_packet_free(&enc_pkt);
-    if (enc_frame)
+        enc_pkt = nullptr;  // 释放后置空
+    }
+
+    if (enc_frame) {
         av_frame_free(&enc_frame);
-    if (enc_ctx)
+        enc_frame = nullptr;  // 释放后置空
+    }
+
+    if (enc_ctx) {
         avcodec_free_context(&enc_ctx);
+        enc_ctx = nullptr;  // 释放后置空
+    }
+
+    if (rtsp_ctx) {
+        // 注意：如果有打开的IO，需要先关闭
+        if (rtsp_ctx->pb) {
+            avio_close(rtsp_ctx->pb);
+            rtsp_ctx->pb = nullptr;
+        }
+
+        avformat_free_context(rtsp_ctx);
+        rtsp_ctx = nullptr;  // 释放后置空
+    }
 }
+
+
 
 void MPPWorker::initCoder()
 {
@@ -199,6 +239,24 @@ void MPPWorker::initCoder()
         return;
     }
     qDebug() << "编码器启动成功！";
+}
+
+void MPPWorker::pushReConfig()
+{
+    if (rtsp_ctx)
+        avformat_free_context(rtsp_ctx);
+    rtspPushIsRuning = false;
+    rtspPushOn = true;
+    rtspInit();
+
+    if (!rtspInitSuccess) {
+        emit remotePushIsRuning(false);
+    }
+}
+
+void MPPWorker::setUrl(const QString &newUrl)
+{
+    url = newUrl;
 }
 
 MPPWorker::~MPPWorker()

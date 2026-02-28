@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
-    <height>900</height>
+    <width>1728</width>
+    <height>921</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -139,13 +139,16 @@ QComboBox QAbstractItemView::item:selected {
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>100</y>
+     <x>170</x>
+     <y>120</y>
      <width>1275</width>
-     <height>667</height>
+     <height>681</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_7">
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
@@ -289,6 +292,28 @@ QComboBox QAbstractItemView::item:selected {
                 </widget>
                </item>
               </layout>
+             </item>
+             <item>
+              <widget class="QFrame" name="frame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>563</width>
+                 <height>1</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::HLine</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Sunken</enum>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QStackedWidget" name="stackedWidget">
@@ -468,34 +493,6 @@ QLineEdit{
                   </item>
                  </layout>
                 </widget>
-                <widget class="QFrame" name="frame">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>0</y>
-                   <width>563</width>
-                   <height>1</height>
-                  </rect>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>563</width>
-                   <height>1</height>
-                  </size>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::HLine</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Sunken</enum>
-                 </property>
-                </widget>
                </widget>
               </widget>
              </item>
@@ -571,6 +568,22 @@ QLineEdit{
              <string>系统信息:</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>19</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -649,10 +662,13 @@ QLineEdit{
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>43</height>
              </size>
             </property>
            </spacer>
@@ -692,8 +708,23 @@ QPushButton {
 </string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="6" column="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QLabel" name="lb_remote_err">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color:red</string>
+            </property>
+            <property name="text">
+             <string>失败,正在重试</string>
+            </property>
+           </widget>
+          </item>
           <item row="5" column="1" colspan="2">
-           <widget class="QLineEdit" name="lineEdit">
+           <widget class="QLineEdit" name="le_addr_push">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -733,6 +764,9 @@ QPushButton {
             <property name="text">
              <string>推流配置:</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+            </property>
            </widget>
           </item>
           <item row="5" column="0">
@@ -742,10 +776,13 @@ QPushButton {
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
+          <item row="6" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="bottomMargin">
+             <number>7</number>
+            </property>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="btn_remote_push_cfg">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -767,7 +804,7 @@ QPushButton {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="btn_remote_push_stop">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -814,15 +851,18 @@ QPushButton {
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="7" column="1">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -835,7 +875,10 @@ QPushButton {
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="label_15">
+           <widget class="QLabel" name="lb_remote_status">
+            <property name="styleSheet">
+             <string notr="true">color:red</string>
+            </property>
             <property name="text">
              <string>已停止</string>
             </property>
@@ -882,6 +925,34 @@ QPushButton {
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QFrame" name="frame_3">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>564</width>
+     <height>1</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>563</width>
+     <height>1</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::HLine</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
   </widget>
  </widget>
  <resources/>

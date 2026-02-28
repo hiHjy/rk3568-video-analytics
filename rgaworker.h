@@ -22,6 +22,8 @@ class RGAWorker : public QObject
 public:
     explicit RGAWorker(QObject *parent = nullptr);
 
+    void setRtspPushOn(bool newRtspPushOn);
+
 signals:
     void yoloRGB640X640Ready(uint8_t* yoloFrame);
     void displayFrameReady(char * displayFramePtr, int width, int height, uint64_t inputNum);
@@ -34,6 +36,7 @@ private:
     char* RGBFrame = nullptr;
     char*  encFrame = nullptr;
     char* yoloFrame = nullptr;
+    bool rtspPushOn = false;
     rga_buffer_t src;
     rga_buffer_t dst;
     rga_buffer_t dst_nv12;

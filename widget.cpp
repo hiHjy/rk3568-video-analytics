@@ -59,8 +59,13 @@ Widget::Widget(QWidget *parent)
     QListView * listView1 = new QListView(ui->comboBox_2);
     ui->comboBox_2->setView(listView1);
 
-
+    ui->lb_remote_err->hide();
     ui->btn_local->clicked(true);
+
+    ui->btn_remote_push_cfg->setEnabled(false);
+    ui->btn_remote_push_stop->setEnabled(false);
+    ui->btn_remote_push_cfg->setStyleSheet("color:grey");
+    ui->btn_remote_push_stop->setStyleSheet("color:grey");
 
     self = this;
 
@@ -130,7 +135,42 @@ Widget::Widget(QWidget *parent)
     connect(sysInfo, &SysInfoQuery::SysInfoReady, this, &Widget::displaySysInfo);
     connect(sysInfoDisplayT, &QThread::started, sysInfo, &SysInfoQuery::tiemrStart);
     connect(sysInfoDisplayT, &QThread::finished, sysInfo, &QObject::deleteLater);
+
     sysInfoDisplayT->start();
+
+    connect(this, &Widget::remotePushRequest, MPP, &MPPWorker::pushReConfig);
+
+    connect(MPP, &MPPWorker::remotePushIsRuning, this, [this](bool flag) {
+        if (flag) {
+            ui->lb_remote_status->setText("正在运行");
+            ui->lb_remote_status->setStyleSheet("color:green");
+
+        } else {
+            if (getIPSuccess) {
+                 ui->lb_remote_status->setText("已停止");
+                 ui->lb_remote_status->setStyleSheet("color:red");
+                 ui->lb_remote_err->show();
+            } else {
+
+                 ui->lb_remote_status->setText("网络异常");
+                 ui->lb_remote_status->setStyleSheet("color:red");
+            }
+
+
+            //            ui->btn_remote_push_cfg->setEnabled(true);
+            //            ui->btn_remote_push_cfg->setStyleSheet("color:white");
+            //            ui->btn_remote_push_stop->setEnabled(false);
+            //            ui->btn_remote_push_stop->setStyleSheet("color:grey");
+        }
+
+    });
+
+    connect(inputManager, &InputManager::displayStreamInfoReady, this, [this]() {
+        ui->btn_remote_push_cfg->setEnabled(true);
+
+        ui->btn_remote_push_cfg->setStyleSheet("color:white");
+
+    });
 }
 
 
@@ -280,15 +320,68 @@ void Widget::displaySysInfo(QString cpuUsage, QString memUsage, QString npuUsage
     ui->lb_npuUsage->setText(npuUsage + "%/100%");
     if (ipv4GetSuccess) {
 
-
+        getIPSuccess = true;
         ui->lb_ip->setText(ip);
 
 
     }  else{
-        ui->lb_ip->setText("未获取到有效IP");
+        getIPSuccess = false;
+        ui->lb_ip->setText("网络异常,未获取到有效IP");
     }
 
 }
 
 
+
+
+
+void Widget::on_btn_remote_push_cfg_clicked()
+{
+    QString protocol = ui->comboBox_2->currentText();
+    QString url = "";
+
+    ui->btn_remote_push_cfg->setEnabled(false);
+    ui->btn_remote_push_cfg->setStyleSheet("color:grey");
+    ui->btn_remote_push_stop->setEnabled(true);
+    ui->btn_remote_push_stop->setStyleSheet("color:white");
+    if (protocol == "RTSP") {
+
+        url = "rtsp://" + ui->le_addr_push->text().trimmed();
+        qDebug() << "url:" << url;
+        MPP->setUrl(url);
+        emit remotePushRequest();
+        QTimer::singleShot(0, this, [this]{
+            emit remotePushRequest();
+        });
+
+        QTimer::singleShot(200, this, [this]{
+            RGA->setRtspPushOn(true);
+        });
+
+
+
+
+
+    } else if (protocol == "RTMP") {
+        //todo
+
+    }
+
+}
+
+
+
+
+void Widget::on_btn_remote_push_stop_clicked()
+{
+    RGA->setRtspPushOn(false);
+    ui->lb_remote_status->setText("已停止");
+    ui->lb_remote_status->setStyleSheet("color:red");
+    ui->lb_remote_err->hide();
+    ui->btn_remote_push_cfg->setEnabled(true);
+    ui->btn_remote_push_cfg->setStyleSheet("color:white");
+    ui->btn_remote_push_stop->setEnabled(false);
+    ui->btn_remote_push_stop->setStyleSheet("color:grey");
+    qDebug() << "停止推流";
+}
 

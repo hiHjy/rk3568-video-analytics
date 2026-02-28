@@ -163,17 +163,25 @@ void RGAWorker::finalStep(detect_result_group_t* out)
 
 
 
+    if (rtspPushOn) {
 
-    //准备要送去给rkmpp编码的帧
-    int ret = imcvtcolor(yoloRGB640X640, dst_nv12, RK_FORMAT_RGB_888, RK_FORMAT_YCbCr_420_SP);
-    if (ret !=  IM_STATUS_SUCCESS) {
-        qDebug() << "imcvtcolor" ;
-        return;
+        //准备要送去给rkmpp编码的帧
+        int ret = imcvtcolor(yoloRGB640X640, dst_nv12, RK_FORMAT_RGB_888, RK_FORMAT_YCbCr_420_SP);
+        if (ret !=  IM_STATUS_SUCCESS) {
+            qDebug() << "imcvtcolor" ;
+            return;
+        }
+
+        //送去rkmpp编码推流
+        emit encFrameReady(encFrame, 640, 480);
     }
 
-    //送去rkmpp编码推流
-    emit encFrameReady(encFrame, 640, 480);
 
+}
+
+void RGAWorker::setRtspPushOn(bool newRtspPushOn)
+{
+    rtspPushOn = newRtspPushOn;
 }
 
 RGAWorker::~RGAWorker()

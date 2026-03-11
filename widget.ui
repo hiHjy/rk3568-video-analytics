@@ -434,7 +434,7 @@ QLineEdit{
                     <item>
                      <widget class="QLineEdit" name="le_addr">
                       <property name="text">
-                       <string>192.168.1.19:8554/live</string>
+                       <string>192.168.101.62:8554/live</string>
                       </property>
                      </widget>
                     </item>
@@ -738,7 +738,7 @@ QPushButton {
              </size>
             </property>
             <property name="text">
-             <string>192.168.1.30:8554/live</string>
+             <string>127.0.0.1:8554/live</string>
             </property>
            </widget>
           </item>

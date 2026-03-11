@@ -45,6 +45,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
 
     while (true && rtspPushOn) {
 
+        //qDebug() << "j--------------------------------";
         ret = avcodec_receive_packet(enc_ctx, enc_pkt);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
 
@@ -75,7 +76,7 @@ void MPPWorker::encode2H264(char *nv12Frame, int width, int height)
                 initCoder();
                 rtspInit();
             }
-
+            qDebug() << "推流失败 发送信号给ui线程";
             emit remotePushIsRuning(false);
             return ;
         }

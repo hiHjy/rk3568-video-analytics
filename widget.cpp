@@ -123,6 +123,9 @@ Widget::Widget(QWidget *parent)
     connect(inputManager, &InputManager::requestClear, this, [this](){
 
         this->enableDisplay = false;
+        on_btn_remote_push_stop_clicked();
+        ui->btn_remote_push_cfg->setEnabled(false);
+        ui->btn_remote_push_cfg->setStyleSheet("color:grey");
         ui->lb_img->clear();
         ui->lb_img->setStyleSheet("background:rgb(37,40,48);");
 
@@ -146,15 +149,17 @@ Widget::Widget(QWidget *parent)
             ui->lb_remote_status->setStyleSheet("color:green");
 
         } else {
-            if (getIPSuccess) {
+            qDebug() << "ui线程收到推流线程推流失败";
+//            if (getIPSuccess) {
+
                  ui->lb_remote_status->setText("已停止");
                  ui->lb_remote_status->setStyleSheet("color:red");
                  ui->lb_remote_err->show();
-            } else {
+//            } else {
 
-                 ui->lb_remote_status->setText("网络异常");
-                 ui->lb_remote_status->setStyleSheet("color:red");
-            }
+//                 ui->lb_remote_status->setText("网络异常");
+//                 ui->lb_remote_status->setStyleSheet("color:red");
+//            }
 
 
             //            ui->btn_remote_push_cfg->setEnabled(true);
@@ -341,7 +346,7 @@ void Widget::on_btn_remote_push_cfg_clicked()
     QString url = "";
 
     ui->btn_remote_push_cfg->setEnabled(false);
-    ui->btn_remote_push_cfg->setStyleSheet("color:grey");
+    ui->btn_remote_push_cfg ->setStyleSheet("color:grey");
     ui->btn_remote_push_stop->setEnabled(true);
     ui->btn_remote_push_stop->setStyleSheet("color:white");
     if (protocol == "RTSP") {
@@ -349,7 +354,7 @@ void Widget::on_btn_remote_push_cfg_clicked()
         url = "rtsp://" + ui->le_addr_push->text().trimmed();
         qDebug() << "url:" << url;
         MPP->setUrl(url);
-        emit remotePushRequest();
+        //emit remotePushRequest();
         QTimer::singleShot(0, this, [this]{
             emit remotePushRequest();
         });

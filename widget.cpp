@@ -36,6 +36,7 @@
 #include "dialog.h"
 #include <QTimer>
 #include <sysinfoquery.h>
+#include "dialogstartcfg.h"
 class CamWorker;
 Widget* Widget::self = nullptr;
 Widget *Widget::getInstance()
@@ -48,10 +49,12 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
 
-
+    /*******/
 
 
     ui->setupUi(this);
+
+
 
     QListView * listView = new QListView(ui->comboBox);
     ui->comboBox->setView(listView);
@@ -176,6 +179,8 @@ Widget::Widget(QWidget *parent)
         ui->btn_remote_push_cfg->setStyleSheet("color:white");
 
     });
+
+
 }
 
 
@@ -287,6 +292,13 @@ void Widget::on_btn_start_cam_clicked()
 
 void Widget::on_btn_remote_conn_clicked()
 {
+    /* test */
+    startCfgDialog = new DialogStartCfg(this);
+    //startCfgDialog->raise();
+    startCfgDialog->show();
+
+
+
 
 
     QString protocol = ui->comboBox->currentText();
@@ -388,5 +400,12 @@ void Widget::on_btn_remote_push_stop_clicked()
     ui->btn_remote_push_stop->setEnabled(false);
     ui->btn_remote_push_stop->setStyleSheet("color:grey");
     qDebug() << "停止推流";
+}
+
+
+void Widget::on_btn_usr_cfg_clicked()
+{
+    startCfgDialog = new DialogStartCfg();
+    startCfgDialog->show();
 }
 

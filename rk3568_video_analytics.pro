@@ -12,6 +12,7 @@ QMAKE_LFLAGS   += -g
 SOURCES += \
     camworker.cpp \
     dialog.cpp \
+    dialogstartcfg.cpp \
     inputfromrtsp.cpp \
    inputmanager.cpp \
     main.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 HEADERS += \
     camworker.h \
     dialog.h \
+    dialogstartcfg.h \
     inputfromrtsp.h \
     inputmanager.h \
     mppworker.h \
@@ -39,6 +41,7 @@ HEADERS += \
 
 FORMS += \
     dialog.ui \
+    dialogstartcfg.ui \
     streaminfo.ui \
     widget.ui
 
@@ -134,3 +137,6 @@ LIBS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    icon.qrc

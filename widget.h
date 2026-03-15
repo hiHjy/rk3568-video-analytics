@@ -19,6 +19,7 @@ class InputFromRTSP;
 class StreamInfo;
 class Dialog;
 class SysInfoQuery;
+class DialogStartCfg;
 #include <opencv2/opencv.hpp>
 #include <atomic>
 extern "C" {
@@ -73,6 +74,8 @@ private slots:
 
     void on_btn_remote_push_stop_clicked();
 
+    void on_btn_usr_cfg_clicked();
+
 private:
     Ui::Widget *ui;
     QImage *img;
@@ -96,7 +99,7 @@ private:
     bool enableDisplay = true;
     uint64_t inputNum = 0;
     SysInfoQuery * sysInfo;
-
+    DialogStartCfg *startCfgDialog;
     bool getIPSuccess = false;
 
 
